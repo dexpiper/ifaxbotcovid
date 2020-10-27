@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-web: python ifaxbotcovid
-=======
-web: python botcovid
->>>>>>> 1af68e0ce99d592f02496621ab88172746b23fae
+web: python -m ifaxbotcovid
