@@ -1,1 +1,1 @@
-web: python -m ifaxbotcovid
+web: python __main__.py
