@@ -1,1 +1,1 @@
-web: python3 __main__.py 3000
+worker: python3 __main__.py 3000
