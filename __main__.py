@@ -5,6 +5,7 @@ import threading
 
 import parser
 import startmessage
+import rpn
 
 TOKEN = '1381452795:AAEBHE7eDd14KKrNLzku1E5nJnO0TllWR3Q'
 bot = telebot.TeleBot(TOKEN)
@@ -36,6 +37,33 @@ def log_construct(log):
         print(exc)
     return result
 
+def rpn_call(msg):
+    rawtext = msg.text
+    if rawtext[:2].lower() == 'йй' or rawtext[-2:].lower() == 'йй' and 'Роспотребнадзор:' in rawtext:
+        text, log = rpn.call(rawtext)
+        log = log_construct(log)
+        bot.send_message(msg.chat.id, text)
+        bot.send_message(msg.chat.id, log, parse_mode='HTML')
+        return False
+    elif rawtext[:16].lower() == 'роспотребнадзор:':
+        text, log = rpn.call(rawtext)
+        bot.send_message(msg.chat.id, text)
+        return False
+    else:
+        return True
+
+def main_call(msg, text=None):
+    text, getlog = gluer(msg)
+    if text != None:
+        news_parser = parser.Parser(text)
+        ready_news = news_parser()
+        bot.send_message(msg.chat.id, ready_news)
+    if getlog == True:
+        log = log_construct(news_parser.log)
+        bot.send_message(msg.chat.id, log, parse_mode='HTML')
+    return
+            
+
 @bot.message_handler(commands=['start'])
 def answer_start(message):
     bot.send_message(message.chat.id, startmessage.s, parse_mode='HTML')
@@ -43,16 +71,16 @@ def answer_start(message):
 @bot.message_handler(content_types=['text'])
 def base_function(message):
     db.append((int(message.date), message.text))
-    text, getlog = gluer(message)
-    if text != None:
-        news_parser = parser.Parser(text)
-        ready_news = news_parser()
-        bot.send_message(message.chat.id, ready_news)
-    if getlog == True:
-        log = log_construct(news_parser.log)
-        bot.send_message(message.chat.id, log, parse_mode='HTML')
+    proceed_mode = rpn_call(message)
+    if proceed_mode == False:
+        return
+    else:
+        main_call(message)
+        return
         
 
 if __name__ == '__main__':
+    print('Starting botcovid...')
     db = deque(maxlen=2); db.append( (int(time.time()), '') )
     bot.polling(none_stop=True)
+
