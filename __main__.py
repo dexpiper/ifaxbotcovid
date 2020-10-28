@@ -6,7 +6,7 @@ import threading
 import parser
 import startmessage
 
-TOKEN = '1063172403:AAG1yJQivHP4SPzVDldOlLC19TQNjZVvtEg'
+TOKEN = '1381452795:AAEBHE7eDd14KKrNLzku1E5nJnO0TllWR3Q'
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
