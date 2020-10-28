@@ -1,9 +1,9 @@
 import re, pyperclip
-from botcovid import dateline
-from botcovid import regioncounter
-from botcovid import dateline as dl
-from botcovid import schemes as s
-from botcovid import tables
+import dateline
+import regioncounter
+import dateline as dl
+import schemes as s
+import tables
 
 date_dateline, date_day = dl.TimeRus()
 

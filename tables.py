@@ -1,4 +1,4 @@
-import botcovid.regioncounter as r
+import regioncounter as r
 import re
 
 '''

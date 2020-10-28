@@ -3,8 +3,8 @@ import time
 from collections import deque as deque
 import threading
 
-from botcovid import parser
-from botcovid import startmessage
+import parser
+import startmessage
 
 TOKEN = '1063172403:AAG1yJQivHP4SPzVDldOlLC19TQNjZVvtEg'
 bot = telebot.TeleBot(TOKEN)
