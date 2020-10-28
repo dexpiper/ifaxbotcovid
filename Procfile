@@ -1,1 +1,1 @@
-web: python3 __main__.py $PORT
+web: python3 __main__.py
