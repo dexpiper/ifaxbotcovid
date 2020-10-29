@@ -9,7 +9,7 @@ date_dateline, date_day = dl.TimeRus()
 
 class Parser():
 
-    def __init__(self, txt, mode='Normal'): # TODO: уточнить regex для выздоровевших
+    def __init__(self, txt, mode='Normal', short=100): # TODO: уточнить regex для выздоровевших
         self.regexes = {'russia_new_cases' : r'случа\w+ коронавирусной инфекции COVID\W19\s?–\s(\d+\s?\d+) в \d+ рег|случа\w+ новой коронавирусной инфекции COVID\W19\s?–\s(\d+\s?\d+) в \d+ рег|случа\w+ новой коронавирусной инфекции \(COVID\W19\)\s?–\s(\d+\s?\d+) в \d+ рег',
            'russia_current_pace' : r'\((\+.+%)\) коронавирусной инфекции в \d+',
            'russia_new_deaths' : r'За последние сутки умер\w+ (\d+) челове|Умерл\w за последние сутки (\d+) челове|За последние сутки подтвержден\w? {1,3}(\d+) {1,3}летальн\w+ случа',
@@ -40,6 +40,7 @@ class Parser():
         self.log = []
         self.txt = txt
         self.mode = mode
+        self.short = short
         if self.mode == 'Normal':
             self.flash_pattern = s.flash
             self.text_pattern = s.text2
@@ -129,7 +130,7 @@ class Parser():
 
         # пробуем рассчитать таблицы по регионам
         try:
-            ready_cases, ready_deaths, tlog = tables.tables(self.txt)
+            ready_cases, ready_deaths, tlog = tables.tables(self.txt, short=self.short)
             self.log.append('\n         *** <b>Запускаю анализ таблиц. Результаты:</b>\n')
             self.log.append(tlog)
         except Exception as exc:
@@ -165,6 +166,15 @@ class Parser():
     def __call__(self):
         self.find_values()
         result = self.fill_the_gaps()
+        if len(result) >= 4095:
+            for i in range(4):
+                self.log = []
+                self.short += 50
+                #print('Увеличиваем self.short на 50. self.short = ' + str(self.short))
+                self.find_values()
+                result = self.fill_the_gaps()
+                if len(result) <= 4090:
+                    break
         return result
         
 if __name__ == '__main__':
@@ -173,6 +183,7 @@ if __name__ == '__main__':
         rawtext = pyperclip.paste()
         parser = Parser(rawtext)
         text = parser()
-        print(text)
+        pyperclip.copy(text)
+        #print(len(text))
         pprint.pprint(parser.log)
         
