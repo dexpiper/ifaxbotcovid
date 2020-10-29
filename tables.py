@@ -23,7 +23,11 @@ def get_key(dct, v): # функция возвращает key в dict, зная
 def find_tables(raw_txt):
     global TABLES
     for regex in REGEXES.values():
-        table_name = get_key(REGEXES, regex)
+        try:
+            table_name = get_key(REGEXES, regex)
+        except Exception as exc:
+            print('Не удалось определить формат таблицы')
+            return
         try:
             table_regex = re.compile(regex, re.DOTALL)
             raw_table = table_regex.findall(raw_txt)[0]
@@ -32,7 +36,7 @@ def find_tables(raw_txt):
             print('Не удалось найти таблицу {}'.format(table_name))
     return
 
-def get_prepared(ready_table, table_type):
+def get_prepared(ready_table, table_type, short=100):
     if table_type == 'ready_cases':
         splitted_ready_cases = ready_table.split(',')
         if 'Москв' in splitted_ready_cases[0]:
@@ -41,7 +45,7 @@ def get_prepared(ready_table, table_type):
             joined_ready_cases = ','.join(splitted_ready_cases[1:]) # убираем Москву
         else:
             joined_ready_cases = ','.join(splitted_ready_cases) # Москва не в начале, не трогаем
-        cases_final = 'По информации оперативного штаба, еще' + joined_ready_cases + 'В других регионах России суточный прирост не превышает 100.'
+        cases_final = 'По информации оперативного штаба, еще' + joined_ready_cases + 'В других регионах России суточный прирост не превышает ' + str(short) + '.'
         return cases_final
     if table_type == 'ready_deaths':
         splitted_deaths = ready_table.split(',')
@@ -52,27 +56,29 @@ def get_prepared(ready_table, table_type):
         cases_final = 'Согласно данным оперштаба о смертности, ' + joint_deaths
         return cases_final
 
-def process_tables():
-    rc_ready_cases = r.RegionCounter(TABLES['newcases'], table_type='new_cases', short=100)
+def process_tables(short=100):
+    rc_ready_cases = r.RegionCounter(TABLES['newcases'], table_type='new_cases', short=short)
     rc_ready_deaths = r.RegionCounter(TABLES['newdeaths'], table_type='dead')
     ready_cases, log1 = rc_ready_cases(), rc_ready_cases.log
     ready_deaths, log2 = rc_ready_deaths(), rc_ready_deaths.log
     log = log1 + log2
-    ready_cases = get_prepared(ready_cases, 'ready_cases')
-    ready_deaths = get_prepared(ready_deaths, 'ready_deaths')
+    ready_cases = get_prepared(ready_cases, 'ready_cases', short=short)
+    ready_deaths = get_prepared(ready_deaths, 'ready_deaths', short=short)
     return ready_cases, ready_deaths, log
 
-def tables(rawtext): # для вызова за пределами скрипта
-    find_tables(rawtext)
-    ready_cases, ready_deaths, log = process_tables()
-    return ready_cases, ready_deaths, log
+def tables(rawtext, short=100): # для вызова за пределами скрипта
+    try:
+        find_tables(rawtext)
+        ready_cases, ready_deaths, log = process_tables(short=short)
+        return ready_cases, ready_deaths, log
+    except Exception as exc:
+            print('Не удалось обработать и добавить таблицы новых случаев и умерших')
 
 if __name__ == '__main__':
     import pyperclip, pprint
     if pyperclip.paste is not None:
         rawtext = pyperclip.paste()
-        find_tables(rawtext)
-        ready_cases, ready_deaths, log = process_tables()
+        ready_cases, ready_deaths, log = tables(rawtext, short=150)
         print(ready_cases)
         print(ready_deaths)
         print(log)
