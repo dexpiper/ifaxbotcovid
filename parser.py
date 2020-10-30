@@ -5,11 +5,12 @@ import dateline as dl
 import schemes as s
 import tables
 
-date_dateline, date_day = dl.TimeRus()
-
 class Parser():
 
-    def __init__(self, txt, mode='Normal', short=100): # TODO: уточнить regex для выздоровевших
+    def __init__(self, txt, mode='Normal', short=100):
+
+        self.date_dateline, self.date_day = dl.TimeRus()
+
         self.regexes = {'russia_new_cases' : r'случа\w+ коронавирусной инфекции COVID\W19\s?–\s(\d+\s?\d+) в \d+ рег|случа\w+ новой коронавирусной инфекции COVID\W19\s?–\s(\d+\s?\d+) в \d+ рег|случа\w+ новой коронавирусной инфекции \(COVID\W19\)\s?–\s(\d+\s?\d+) в \d+ рег',
            'russia_current_pace' : r'\((\+.+%)\) коронавирусной инфекции в \d+',
            'russia_new_deaths' : r'За последние сутки умер\w+ (\d+) челове|Умерл\w за последние сутки (\d+) челове|За последние сутки подтвержден\w? {1,3}(\d+) {1,3}летальн\w+ случа',
@@ -30,8 +31,8 @@ class Parser():
           'moscow_new_cases' : 'NO_VALUE',
           'moscow_new_deaths' : 'NO_VALUE',
           'moscow_new_recovered' : 'NO_VALUE',
-          'date_dateline' : date_dateline,
-          'date_day' : date_day,
+          'date_dateline' : self.date_dateline,
+          'date_day' : self.date_day,
           'golden_cite' : 'NO_VALUE',
           'russia_total_deaths' : 'NO_VALUE',
           'russia_total_recovered' : 'NO_VALUE',
