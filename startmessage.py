@@ -3,6 +3,7 @@ s = '''
 
 Текущая версия: <i>beta 0.9.2</i>
 Написан на: <i>Python 3.8.2</i>
+Страница на GitHub: <a href="https://github.com/dexpiper/ifaxbotcovid">github.com/dexpiper/ifaxbotcovid</a>
 Вопросы и замечания: <a href="tg://user?id=138946204">направляйте сюда</a>
 
 <b>Как пользоваться</b>:
