@@ -1,5 +1,6 @@
 import telebot
 import time
+import os
 from collections import deque as deque
 import threading
 
@@ -7,7 +8,7 @@ import parser
 import startmessage
 import rpn
 
-TOKEN = '1381452795:AAEBHE7eDd14KKrNLzku1E5nJnO0TllWR3Q'
+TOKEN = os.environ['TOKEN']
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
