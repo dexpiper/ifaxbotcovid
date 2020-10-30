@@ -1,6 +1,14 @@
 # ifaxBotCovid - reporter's helper
 
-Currently available at https://t.me/ifaxcovidbot, currently deployed at Heroku.
+Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
+
+### Table of contents
+* [Introduction](#introduction)
+* [Technologies and libraries](#technologies-and-libraries)
+* [Scope of functionalities](#scope-of-functionalities)
+* [Examples of use](#examples-of-use)
+* [Sources](#sources)
+* [Further development](#further-development)
 
 ### Introduction
 
