@@ -49,7 +49,6 @@ class Parser():
     def NAcounter(self):
         i = 0
         for value in self.values.values():
-            print(value)
             if value == 'NO_VALUE':
                 i += 1
         return i
