@@ -199,7 +199,7 @@ class Parser():
                 self.short += 50
                 self.find_values()
                 result = self.fill_the_gaps()
-                if len(result) <= 4090 - 110: # лимит Telegram на длину одного сообщения минус длина возможного сообщения об ошибке перед текстом
+                if len(result) <= 4090 - 150: # лимит Telegram на длину одного сообщения минус длина возможного сообщения об ошибке перед текстом
                     break
         if 'NO_VALUE' in result:
             attention_message = '***   ВНИМАНИЕ! %s цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n' % str(self.NAcounter())
