@@ -58,7 +58,11 @@ def main_call(msg, text=None):
     if text != None:
         news_parser = parser.Parser(text)
         ready_news = news_parser()
-        bot.send_message(msg.chat.id, ready_news)
+        if type(ready_news) is tuple:
+            bot.send_message(msg.chat.id, ready_news[0])
+            bot.send_message(msg.chat.id, ready_news[1])
+        else:
+            bot.send_message(msg.chat.id, ready_news)
     if getlog == True:
         log = log_construct(news_parser.log)
         bot.send_message(msg.chat.id, log, parse_mode='HTML')
