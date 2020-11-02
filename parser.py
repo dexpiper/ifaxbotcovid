@@ -45,6 +45,14 @@ class Parser():
         if self.mode == 'Normal':
             self.flash_pattern = s.flash
             self.text_pattern = s.text2
+    
+    def NAcounter(self):
+        i = 0
+        for value in self.values.values():
+            print(value)
+            if value == 'NO_VALUE':
+                i += 1
+        return i
 
     def del_space(self, txt): # функция удаляет лишние пробелы
         regex1 = re.compile(r'\s')
@@ -111,6 +119,25 @@ class Parser():
         n = regex1.sub(',', str(n))
         return n
 
+    def change_shape(self, arg): # меняем '1098007' на строку '1 млн 098 тыс. 007' 
+        try:
+            arg = int(arg) # подстраховываемся на случай, если на входе будет NO_VALUE
+            zfill = lambda x: str(x).zfill(3) # объявим безымянную функцию для '7' ==> '007'
+        except Exception as exc:
+            self.log.append('Не удалось применить change_shape к %s' % str(arg))
+            return str(arg)
+        if arg > 1000000:
+            millions = int(arg/1000000)
+            thousands = int(arg/1000) - millions*1000
+            hundreds = int(arg) - millions*1000000 - thousands*1000
+            return '%s млн %s тыс. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
+        elif arg > 1000:
+            thousands = int(arg/1000)
+            hundreds = int(arg) - thousands*1000
+            return '%s тыс. %s' % (str(thousands), zfill(str(hundreds)))
+        else:
+            return str(arg)
+
     def fill_the_gaps(self):
         
         try:
@@ -142,14 +169,14 @@ class Parser():
                         russia_new_cases=self.comma1000(self.values['russia_new_cases']), # меняем точку на запятую, делим на 1000, округляем
                         russia_current_pace=self.values['russia_current_pace'],
                         russia_new_deaths=self.values['russia_new_deaths'],
-                        russia_new_recovered=self.values['russia_new_recovered'],
-                        russia_total_cases=self.values['russia_total_cases'],
-                        russia_total_deaths=self.values['russia_total_deaths'],
-                        russia_total_recovered=self.values['russia_total_recovered'],
-                        russia_active=self.values['russia_active'],
-                        moscow_new_cases=self.values['moscow_new_cases'],
+                        russia_new_recovered=self.change_shape(self.values['russia_new_recovered']), # 1098007 ==> 1 млн 98 тыс. 007
+                        russia_total_cases=self.change_shape(self.values['russia_total_cases']),
+                        russia_total_deaths=self.change_shape(self.values['russia_total_deaths']),
+                        russia_total_recovered=self.change_shape(self.values['russia_total_recovered']),
+                        russia_active=self.change_shape(self.values['russia_active']),
+                        moscow_new_cases=self.change_shape(self.values['moscow_new_cases']),
                         moscow_new_deaths=self.values['moscow_new_deaths'],
-                        moscow_new_recovered=self.values['moscow_new_recovered'],
+                        moscow_new_recovered=self.change_shape(self.values['moscow_new_recovered']),
                         date_dateline=self.values['date_dateline'],
                         date_day=self.values['date_day'],
                         golden_cite=self.values['golden_cite'],
@@ -168,14 +195,16 @@ class Parser():
         self.find_values()
         result = self.fill_the_gaps()
         if len(result) >= 4095:
-            for i in range(4):
+            for i in range(4): # увеличение self.short укорачивает таблицу новых случаев COVID-19 в регионах 
                 self.log = []
                 self.short += 50
-                #print('Увеличиваем self.short на 50. self.short = ' + str(self.short))
                 self.find_values()
                 result = self.fill_the_gaps()
-                if len(result) <= 4090:
+                if len(result) <= 4090 - 110: # лимит Telegram на длину одного сообщения минус длина возможного сообщения об ошибке перед текстом
                     break
+        if 'NO_VALUE' in result:
+            attention_message = '***   ВНИМАНИЕ! %s цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n' % str(self.NAcounter())
+            result = attention_message + result
         return result
         
 if __name__ == '__main__':
@@ -185,6 +214,5 @@ if __name__ == '__main__':
         parser = Parser(rawtext)
         text = parser()
         pyperclip.copy(text)
-        #print(len(text))
         pprint.pprint(parser.log)
         
