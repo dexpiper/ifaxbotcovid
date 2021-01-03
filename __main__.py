@@ -4,11 +4,12 @@ import os
 from collections import deque as deque
 import threading
 
-import parser
+import textparser
 import startmessage
 import rpn
 
-TOKEN = os.environ['TOKEN']
+#TOKEN = os.environ['TOKEN']
+TOKEN = '1449101936:AAFIruqTecxM3JkPkxbgex18pt7Z1SC9fO0'
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
@@ -56,7 +57,7 @@ def rpn_call(msg):
 def main_call(msg, text=None):
     text, getlog = gluer(msg)
     if text != None:
-        news_parser = parser.Parser(text)
+        news_parser = textparser.Parser(text)
         ready_news = news_parser()
         if type(ready_news) is tuple:
             bot.send_message(msg.chat.id, ready_news[0])

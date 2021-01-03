@@ -12,13 +12,30 @@ import re
 
 # задаем regex'ы для парсинга двух таблиц в релизе
 REGEXES = dict(newcases=r'Распределение по субъектам(.*)В Российской Федерации нарастающ',
-           newdeaths=r'подтвержден\w?\s+\d{1,3}\s+летальн\w+ случа\w+(.*)За весь период по России умер')
+           newdeaths='|'.join((
+               r'подтвержден\w?\s+\d{1,3}\s+летальн\w+ случа\w+(.*)За весь период по России умер',
+               r'подтвержден\w? {1,3}\d+ {1,3}смерт(.*)За весь период по России умер'))
+              )
 
 # здесь будут храниться таблицы
 TABLES = dict(newcases='NO_TABLE', newdeaths='NO_TABLE')
 
 def get_key(dct, v): # функция возвращает key в dict, зная value
 	return [key for key, value in dct.items() if value == v][0]
+
+def choose_value(value): # функция сокращает tuple вида ('', 'цифра', '') до 'цифра'
+        if type(value) == tuple:
+            if len(value) > 1:
+                for item in value:
+                    if item == '':
+                        None
+                    else:
+                        return item
+                return ''
+            else:
+                return item
+        else:
+            return value
 
 def find_tables(raw_txt):
     global TABLES
@@ -31,6 +48,7 @@ def find_tables(raw_txt):
         try:
             table_regex = re.compile(regex, re.DOTALL)
             raw_table = table_regex.findall(raw_txt)[0]
+            raw_table = choose_value(raw_table)
             TABLES[table_name] = raw_table
         except Exception as exc:
             print('Не удалось найти таблицу {}'.format(table_name))
