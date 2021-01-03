@@ -8,8 +8,7 @@ import textparser
 import startmessage
 import rpn
 
-#TOKEN = os.environ['TOKEN']
-TOKEN = '1449101936:AAFIruqTecxM3JkPkxbgex18pt7Z1SC9fO0'
+TOKEN = os.environ['TOKEN']
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
