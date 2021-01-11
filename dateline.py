@@ -10,7 +10,7 @@ def TimeRus():
     m = datetime.datetime.now().strftime('%B')
     dw = datetime.datetime.now().strftime('%w')
     d = str(int(d))
-    if m == 'Jenuary':
+    if m == 'January':
         m = 'января'
     elif m == 'February':
         m = 'февраля'
