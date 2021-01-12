@@ -161,7 +161,7 @@ class RegionCounter():
         else:                 # если в списке всего один регион
             regs = dct[key][0]
             regs = self.editRegs(regs, 1); regs = self.editRegs(regs, 0) # преобразуем форму слов
-            txt += '{0} - в {2}, '.format(key, self.addition(key), regs)
+            txt += '{0} - в {1}, '.format(key, regs)
             dot = False
         return txt, dot
     
@@ -169,7 +169,6 @@ class RegionCounter():
         txt = ''
         dot = True                # закончилась ли предыдущая фраза точкой
         for key in dct.keys():
-            regs = ''
             if self.short != None:
                 if int(key) >= self.short:
                     n_txt, dot = self.process_it(dct, key, dot)
@@ -204,7 +203,6 @@ class RegionCounter():
             if rawregion != [] and len(rawregion) > 3:
                 self.log.append('Попытка {} из {} - успешно!'.format(counter, len(self.REGEXES)))
                 return rawregion
-                break
             else:
                 self.log.append('Попытка {} из {} неудачна'.format(counter, len(self.REGEXES)))
         return []
@@ -262,8 +260,7 @@ class RegionCounter():
         return text
 
 
-# тело программы, выполняется только при непосредственном исполнении скрипта
-
+# for testing only
 if __name__ == '__main__':
 
     if pyperclip.paste is not None:

@@ -1,33 +1,38 @@
-# файл с шаблонами заметок
+'''
+The file contains patterns - blocks of text with gaps where new information
+could be inserted. Every piece of information has a named variable for it.
+
+List of avaliable variables:
+
+### FOR COVID-19 DAILY RELEASE
+
+russia_new_cases        # new COVID-19 cases in Russia for the last 24h 
+russia_current_pace     # difference of total COVID-19 cases in % between today and yesterday
+russia_new_deaths       # COVID-related deaths in Russia for the last 24h
+russia_new_recovered    # patients recovered after COVID for the last 24h
+russia_total_cases      # total COVID-19 cases in Russia for present
+russia_total_deaths     # total COVID-related deaths in Russia for present
+russia_total_recovered  # total number of patients recovered after COVID-19 in Russia
+russia_active           # active COVID cases: <total cases> - (<total recoverd> + <total dead>)
+moscow_new_cases        # Moscow COVID-19 cases for 24h
+moscow_new_deaths       # Moscow COVID-related deaths for 24h
+moscow_new_recovered    # Moscow recovered COVID-patients for 24h 
+
+date_dateline           # formatted date and month for dateline string in Russian ("12 января") 
+date_day                # day of the week in Russian put in right grammatical form
+golden_cite             # a piece of original raw text for the second paragraph
+
+### FOR RPN COVID-TESTING DAILY MESSAGE
+
+'total_tests'           # total number of COVID-19 tests performed in Russia
+'recent_tests'          # number of COVID tests for the last 24h
+'people_monitored'      # number of patients under medical control after COVID contact
 
 '''
-Список используемых переменных:
 
-russia_new_cases
-russia_current_pace
-russia_new_deaths
-russia_new_recovered
-russia_total_cases
-russia_total_deaths
-russia_total_recovered
-russia_active
-moscow_new_cases
-moscow_new_deaths
-moscow_new_recovered
-
-date_dateline
-date_day
-golden_cite
-
-#moscow_rt
-#russia_rt
-
-#'total_tests'
-#'recent_tests'
-#'people_monitored'
-
-'''
-
+###
+### pattern for flash - urgent news agency's message
+###
 flash = '''ЭМБАРГО
 
 МОЛНИЯ
@@ -39,50 +44,26 @@ flash = '''ЭМБАРГО
 1** (1ку) ЭМБАРГО
 '''
 
-rpn = '''ТЕСТИРОВАНИЕ
-По информации Роспотребнадзора, опубликованной в {date_day}, в России нарастающим итогом проведено более {total_tests} млн тестов на COVID-19, из них {recent_tests} тыс. - за последние сутки. Под медицинским наблюдением в стране остается {people_monitored} человек.
-'''
-
+###
+### pattern for ordinary news message text
+###
 text = '''
 ЭМБАРГО
-ЭКСПРЕСС-РОССИЯ-COVID-СТАТИСТИКА
-{russia_new_cases} тыс. новых случаев COVID-19 в РФ, {russia_new_deaths} умерших - оперштаб
-Москва. {date_dateline}. ИНТЕРФАКС - Суточный прирост новых заболевших коронавирусной инфекцией составил {russia_new_cases} тыс. случаев, умерли за сутки {russia_new_deaths} пациентов, следует из данных оперативного штаба, обнародованных в {date_day}.
-"{golden_cite}", - говорится в сообщении штаба.
-Нарастающим итогом в России зарегистрировано {russia_total_cases} случаев коронавирусной инфекции, {russia_total_deaths} умерших и {russia_total_recovered} выписанных ({russia_new_recovered} выписаны за последние сутки). Таким образом, общее количество активных случаев в стране (общее число случаев за вычетом всех выздоровевших и всех умерших) на текущий момент составляет {russia_active}.
-В Москве в {date_day}, сообщает оперативный штаб, {moscow_new_cases} новых случаев COVID-19 за сутки, {moscow_new_deaths} смерть и {moscow_new_recovered} выздоровевших.
-Коэффициент распространения инфекции в Москве в {date_day} составил {moscow_rt}. В России этот показатель равняется {russia_rt}.
-Коэффициент рассчитан, исходя из официальных данных оперативного штаба и из формулы расчета в методических рекомендациях Роспотребнадзора 3.1.0178-20 от 8 мая 2020 г.
-Согласно методическим рекомендациям Роспотребнадзора, коэффициент распространения инфекции (Rt) - это показатель, определяющий среднее количество людей, которых инфицирует один больной до его изоляции. Он рассчитывается на основе данных по приросту новых случаев. Наряду со свободным коечным фондом и показателем тестирования на 100 тыс. населения, коэффициент Rt используется, согласно рекомендациям, для принятия решения о поэтапном снятии ограничений в регионах.
-ПОСЛЕДУЕТ
-1** (1ку) ЭМБАРГО'''
-
-text2 = '''
-ЭМБАРГО
 
 ЭКСПРЕСС-РОССИЯ-COVID-СТАТИСТИКА
 {russia_new_cases} тыс. новых случаев COVID-19 в РФ, {russia_new_deaths} умерших - оперштаб
-Москва. {date_dateline}. ИНТЕРФАКС - Суточный прирост новых заболевших коронавирусной инфекцией составил {russia_new_cases} тыс. случаев, умерли за сутки {russia_new_deaths} пациентов, следует из данных оперативного штаба, обнародованных в {date_day}.
+Москва. {date_dateline}. ИНТЕРФАКС - Суточный прирост новых заболевших коронавирусной инфекцией составил {russia_new_cases} тыс. случаев, умерли за сутки {russia_new_deaths} пациентов, следует из данных оперативного штаба, обнародованных {date_day}.
 "{golden_cite}", - говорится в сообщении штаба.
 Нарастающим итогом в России зарегистрировано {russia_total_cases} случаев коронавирусной инфекции, {russia_total_deaths} умерших и {russia_total_recovered} выписанных ({russia_new_recovered} выписаны за последние сутки). Таким образом, общее количество активных случаев в стране (общее число случаев за вычетом всех выздоровевших и всех умерших) на текущий момент составляет {russia_active}.
 ПОКАЗАТЕЛИ ПРИРОСТА И СМЕРТНОСТИ В СТОЛИЦЕ И РЕГИОНАХ
-В Москве в {date_day}, сообщает оперативный штаб, {moscow_new_cases} новых случаев COVID-19 за сутки, {moscow_new_deaths} смертей и {moscow_new_recovered} выздоровевших.
+В Москве {date_day}, сообщает оперативный штаб, {moscow_new_cases} новых случаев COVID-19 за сутки, {moscow_new_deaths} смертей и {moscow_new_recovered} выздоровевших.
 {ready_cases}
 {ready_deaths}
 1** (1ку) ЭМБАРГО'''
 
-text3 = '''
-ЭМБАРГО
-ЭКСПРЕСС-РОССИЯ-COVID-СТАТИСТИКА
-{russia_new_cases} тыс. новых случаев COVID-19 в РФ, {russia_new_deaths} умерших - оперштаб
-Москва. {date_dateline}. ИНТЕРФАКС - Суточный прирост новых заболевших коронавирусной инфекцией составил {russia_new_cases} тыс. случаев, умерли за сутки {russia_new_deaths} пациентов, следует из данных оперативного штаба, обнародованных в {date_day}.
-"{golden_cite}", - говорится в сообщении штаба.
-Нарастающим итогом в России зарегистрировано {russia_total_cases} случаев коронавирусной инфекции, {russia_total_deaths} умерших и {russia_total_recovered} выписанных ({russia_new_recovered} выписаны за последние сутки). Таким образом, общее количество активных случаев в стране (общее число случаев за вычетом всех выздоровевших и всех умерших) на текущий момент составляет {russia_active}.
-ПОКАЗАТЕЛИ ПРИРОСТА И СМЕРТНОСТИ В СТОЛИЦЕ И РЕГИОНАХ
-В Москве в {date_day}, сообщает оперативный штаб, {moscow_new_cases} новых случаев COVID-19 за сутки, {moscow_new_deaths} смертей и {moscow_new_recovered} выздоровевших.
-{ready_cases}
-{ready_deaths}
-ТЕСТИРОВАНИЕ
-По информации Роспотребнадзора, опубликованной в {date_day}, в России нарастающим итогом проведено более {total_tests} млн тестов на COVID-19, из них {recent_tests} тыс. - за последние сутки. Под медицинским наблюдением в стране остается {people_monitored} человек.
-1** (1ку) ЭМБАРГО'''
-
+###
+### pattern for RPN COVID-testing daily message
+###
+rpn = '''ТЕСТИРОВАНИЕ
+По информации Роспотребнадзора, опубликованной {date_day}, в России нарастающим итогом проведено более {total_tests} млн тестов на COVID-19, из них {recent_tests} тыс. - за последние сутки. Под медицинским наблюдением в стране остается {people_monitored} человек.
+'''
