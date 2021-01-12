@@ -6,7 +6,7 @@ last 24 hours and returns ready-to-use text.
 USAGE:
 
 rpn = RPN(rawtext)
-text = rpn()
+text = rpn.construct()
 log = rpn.log
 
 '''
