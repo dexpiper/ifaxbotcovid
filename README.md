@@ -103,7 +103,8 @@ The project is inspired by:
 * [the guide](https://tproger.ru/translations/telegram-bot-create-and-deploy/) on tproger website 
 * [Automate the boring staff with Python](https://automatetheboringstuff.com/) by Al Sweigart
 * Fluent Python book by Luciano Ramalho
-* different Git guides and tutorials
+* Git guides and tutorials
+* My grateful collegues
 
 Firstly written for personal use as a bunch of Python scripts called via command line, now the staff transformed into a simple, but fast and pretty straightforward solution for Interfax reporters.
 

@@ -1,7 +1,6 @@
 import re, pyperclip
 import dateline
 import regioncounter
-import dateline as dl
 import schemes as s
 import tables
 import regex
@@ -10,7 +9,8 @@ class Parser():
 
     def __init__(self, txt, mode='Normal', short=100):
 
-        self.date_dateline, self.date_day = dl.TimeRus()
+        dl = dateline.Dateline()
+        self.date_dateline, self.date_day = dl.dateline, dl.weekday
 
         self.regexes = regex.regexes
         
@@ -35,7 +35,7 @@ class Parser():
         self.short = short
         if self.mode == 'Normal':
             self.flash_pattern = s.flash
-            self.text_pattern = s.text2
+            self.text_pattern = s.text
     
     def NAcounter(self):
         i = 0
@@ -90,7 +90,7 @@ class Parser():
                     self.values[value_name] = self.del_space(raw_value)
                 else:
                     self.values[value_name] = raw_value
-            except Exception as exc:
+            except Exception:
                 self.log.append('<b>Переменная не заполнена: {}</b>'.format(value_name))
         self.compute_russia_active()
         #VALUES = manual_edit(VALUES) # если есть незаполненные переменные, предлагаем пользователю ввести их вручную
@@ -113,7 +113,7 @@ class Parser():
         try:
             arg = int(arg) # подстраховываемся на случай, если на входе будет NO_VALUE
             zfill = lambda x: str(x).zfill(3) # объявим безымянную функцию для '7' ==> '007'
-        except Exception as exc:
+        except Exception:
             self.log.append('Не удалось применить change_shape к %s' % str(arg))
             return str(arg)
         if arg > 1000000:
@@ -196,7 +196,8 @@ class Parser():
             attention_message = '***   ВНИМАНИЕ! %s цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n' % str(self.NAcounter())
             return (attention_message, result)
         return result
-        
+
+# for testing usage only        
 if __name__ == '__main__':
     import pprint
     if pyperclip.paste is not None:

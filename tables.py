@@ -42,7 +42,7 @@ def find_tables(raw_txt):
     for regex in REGEXES.values():
         try:
             table_name = get_key(REGEXES, regex)
-        except Exception as exc:
+        except Exception:
             print('Не удалось определить формат таблицы')
             return
         try:
@@ -50,7 +50,7 @@ def find_tables(raw_txt):
             raw_table = table_regex.findall(raw_txt)[0]
             raw_table = choose_value(raw_table)
             TABLES[table_name] = raw_table
-        except Exception as exc:
+        except Exception:
             print('Не удалось найти таблицу {}'.format(table_name))
     return
 
@@ -89,9 +89,10 @@ def tables(rawtext, short=100): # для вызова за пределами с
         find_tables(rawtext)
         ready_cases, ready_deaths, log = process_tables(short=short)
         return ready_cases, ready_deaths, log
-    except Exception as exc:
+    except Exception:
             print('Не удалось обработать и добавить таблицы новых случаев и умерших')
 
+# for testing usage only
 if __name__ == '__main__':
     import pyperclip, pprint
     if pyperclip.paste is not None:

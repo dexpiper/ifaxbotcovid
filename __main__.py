@@ -8,14 +8,14 @@ import textparser
 import startmessage
 import rpn
 
-TOKEN = os.environ['TOKEN']
+#TOKEN = os.environ['TOKEN']
+TOKEN = '1449101936:AAFIruqTecxM3JkPkxbgex18pt7Z1SC9fO0'
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
     old_time = int(db[0][0])
     new_time = int(db[1][0])
-    '''if msg.text[:2].lower() == 'йй':
-        return None, None'''
+
     if new_time - old_time < 1:
         text = db[0][1] + msg.text # text - склеенный кусок текста
         print('Склеено длинное сообщение')
@@ -40,14 +40,19 @@ def log_construct(log):
 
 def rpn_call(msg):
     rawtext = msg.text
-    if rawtext[:2].lower() == 'йй' or rawtext[-2:].lower() == 'йй' and 'Роспотребнадзор:' in rawtext:
-        text, log = rpn.call(rawtext)
+    
+    if (rawtext[:2].lower() == 'йй' or
+        rawtext[-2:].lower() == 'йй'
+        ) and ('Роспотребнадзор:' in rawtext):
+        RPN_constructor = rpn.RPN(rawtext)
+        text, log = RPN_constructor.construct(), RPN_constructor.log
         log = log_construct(log)
         bot.send_message(msg.chat.id, text)
         bot.send_message(msg.chat.id, log, parse_mode='HTML')
         return False
     elif rawtext[:16].lower() == 'роспотребнадзор:':
-        text, log = rpn.call(rawtext)
+        RPN_constructor = rpn.RPN(rawtext)
+        text = RPN_constructor.construct()
         bot.send_message(msg.chat.id, text)
         return False
     else:
