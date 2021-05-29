@@ -101,12 +101,13 @@ Outcome:
 
 ### Structure
 
+```
 /
-  _main__.py                 - *handles telegram messages and calls textparser.py or rpn.py*
-  manual_parse.py            - *manual testing for textparser.py*
-  manual_rpn_parse.py        - *manual testing for rpn.py*
+_main__.py                 - *handles telegram messages and calls textparser.py or rpn.py*
+manual_parse.py            - *manual testing for textparser.py*
+manual_rpn_parse.py        - *manual testing for rpn.py*
 
-  **/ifaxbotcovid**
+  /ifaxbotcovid
 
     textparser.py          - *chief module for parsing the big release, all things here*
     rpn.py                 - *module for parsing short RPN messages*
@@ -117,7 +118,7 @@ Outcome:
         settings.py        - *Telegram bot token for testing purposes here*
         startmessage.py    - *message to answer /start command*
 
-  **/tests**
+  /tests
     ...
     /unit_tests
     /test_data
@@ -126,7 +127,7 @@ Outcome:
 
         corrupted_xxx.txt  - *files with "corrupted" in their name deliberately placed to raise an error during the tests*
         ...
-
+```
 
 ### Sources
 The project is inspired by:
