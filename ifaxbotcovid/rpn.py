@@ -11,9 +11,10 @@ log = rpn.log
 
 '''
 
-import re, pyperclip
-import schemes
-import dateline
+import re
+
+import ifaxbotcovid.config.schemes as schemes
+import ifaxbotcovid.dateline as dateline
 
 class RPN:
 
@@ -22,7 +23,7 @@ class RPN:
         self.regexes = {
             'total_tests' : r'РФ проведен\w? более (\d+,?\d?) млн\.? тест\w+ на корона',
             'recent_tests' : r'за сутки проведено (\d+) тыс. тестов на коронав',
-            'people_monitored' : r'под меднаблюдением оста\wтся (\d+\s\d+) чел'
+            'people_monitored' : r'под меднаблюдением оста\wтся (\d+\s\d+)\s{1,3}чел'
             }
 
         self.values = {
@@ -63,7 +64,7 @@ class RPN:
                         return item
                 return ''
             else:
-                return item
+                return value[0]
         else:
             return value
 
@@ -114,15 +115,3 @@ class RPN:
             self.log.append('<b>Exception при попытке заполнить rpn:</b> ' + str(exc))
             return None
         return result
-
-# for testing usage only
-if __name__ == '__main__':
-    input('''\n\n         *** Скопируйте в буфер обмена сообщение РПН с количеством выполненных тестов и нажмите "ENTER"''')
-    if pyperclip.paste is not None:
-        rawtext = pyperclip.paste()
-    else:
-        print('В буфере обмена отсутствует подходящий кусок текста')
-    rpn = RPN(rawtext)
-    text, log = rpn.construct(), rpn.log
-    print(log)
-    print(text)

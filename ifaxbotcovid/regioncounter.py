@@ -1,8 +1,4 @@
-#! python3
-# v. 2.0 (объединение в класс для работы через бота)
-
 import re
-import pyperclip
 import random
 
 class RegionCounter():
@@ -260,9 +256,10 @@ class RegionCounter():
         return text
 
 
-# for testing only
+# for manual testing only
 if __name__ == '__main__':
 
+    import pyperclip
     if pyperclip.paste is not None:
         rawtext = pyperclip.paste()
     else:

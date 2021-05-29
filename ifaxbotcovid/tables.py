@@ -1,5 +1,6 @@
-import regioncounter as r
 import re
+
+import ifaxbotcovid.regioncounter as r
 
 '''
 Скрипт находит таблицы новых случев и смертей в пресс-релизе оперштаба
@@ -33,7 +34,7 @@ def choose_value(value): # функция сокращает tuple вида ('',
                         return item
                 return ''
             else:
-                return item
+                return value[0]
         else:
             return value
 

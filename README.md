@@ -7,6 +7,7 @@ Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
 * [Technologies and libraries](#technologies-and-libraries)
 * [Scope of functionalities](#scope-of-functionalities)
 * [Examples of use](#examples-of-use)
+* [Project structure](#structure)
 * [Sources](#sources)
 * [Further development](#further-development)
 
@@ -18,9 +19,9 @@ Simple Telegram bot. Helps journalists to fetch data from daily COVID-19 officia
 
 Project is created with:
 * Python 3.8.2
+* re module for parsing
 * [pyTelegramBotAPI 3.7.3](https://github.com/eternnoir/pyTelegramBotAPI)
-
-Also *pyperclip* for testing internal modules.
+* pytest for automated tests, pyperclip and pprint for manual tests
 
 ### Scope of functionalities
 
@@ -98,15 +99,43 @@ Outcome:
 1** ЭМБАРГО
 ```
 
+### Structure
+
+/
+  _main__.py                 - *handles telegram messages and calls textparser.py or rpn.py*
+  manual_parse.py            - *manual testing for textparser.py*
+  manual_rpn_parse.py        - *manual testing for rpn.py*
+
+  **/ifaxbotcovid**
+
+    textparser.py          - *chief module for parsing the big release, all things here*
+    rpn.py                 - *module for parsing short RPN messages*
+    ...
+    /config
+        regex.py           - *regular expressions used by the 'textparser.py'*
+        schemes.py         - *templates*
+        settings.py        - *Telegram bot token for testing purposes here*
+        startmessage.py    - *message to answer /start command*
+
+  **/tests**
+    ...
+    /unit_tests
+    /test_data
+
+        sample_xxx.txt     - *input for test, .txt files > 300 considered as a textparser.py input, less then 300 - as a rpn.py input. Any "sample_xxx.txt" content can be used as a valid input for telegram bot*
+
+        corrupted_xxx.txt  - *files with "corrupted" in their name deliberately placed to raise an error during the tests*
+        ...
+
+
 ### Sources
 The project is inspired by:
 * [the guide](https://tproger.ru/translations/telegram-bot-create-and-deploy/) on tproger website 
 * [Automate the boring staff with Python](https://automatetheboringstuff.com/) by Al Sweigart
-* Fluent Python book by Luciano Ramalho
-* Git guides and tutorials
+* [Fluent Python](https://www.oreilly.com/library/view/fluent-python/9781491946237/) by Luciano Ramalho
 * My grateful collegues
 
-Firstly written for personal use as a bunch of Python scripts called via command line, now the staff transformed into a simple, but fast and pretty straightforward solution for Interfax reporters.
+Firstly written for personal use as a bunch of Python scripts called via command line, later the staff transformed into a simple, but fast and pretty straightforward solution for fellow Interfax reporters.
 
 ### Further development
 Having a working parsing algorithm and a bot to launch it, it is rather simple to change ready patterns for putting values into. That means the bot could be tuned to necessities of a vast circle of editors and journalists, both in Russia and outside the country.

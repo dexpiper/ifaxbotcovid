@@ -1,5 +1,5 @@
 """
-This module rovides Dateline class to construct date and weekday
+This module provides Dateline class to construct date and weekday
 strings in Russian like '16 июля' and 'в четверг' using system time.
 
 Usage:
@@ -61,7 +61,7 @@ class Dateline():
             }
         return weekdays_dct[arg]
 
-# for testing only
+# for manual testing only
 if __name__ == '__main__':
     date = Dateline()
     lines = 'Москва. {}. ИНТЕРФАКС - \n- {}.'.format(date.dateline, date.weekday)

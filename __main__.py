@@ -4,11 +4,19 @@ import os
 from collections import deque as deque
 import threading
 
-import textparser
-import startmessage
-import rpn
+import ifaxbotcovid.textparser as textparser
+import ifaxbotcovid.config.startmessage as startmessage
+import ifaxbotcovid.rpn as rpn
 
-TOKEN = os.environ['TOKEN']
+# CHANGE TO "FALSE" BEFORE DEPLOY
+TESTMODE = False
+
+if TESTMODE == False:
+    TOKEN = os.environ['TOKEN']
+else:
+    import ifaxbotcovid.config.settings as settings
+    TOKEN = settings.TOKEN
+
 bot = telebot.TeleBot(TOKEN)
 
 def gluer(msg, getlog=False):
@@ -86,10 +94,8 @@ def base_function(message):
     else:
         main_call(message)
         return
-        
 
 if __name__ == '__main__':
     print('Starting botcovid...')
     db = deque(maxlen=2); db.append( (int(time.time()), '') )
     bot.polling(none_stop=True)
-

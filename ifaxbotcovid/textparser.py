@@ -1,9 +1,10 @@
-import re, pyperclip
-import dateline
-import regioncounter
-import schemes as s
-import tables
-import regex
+import re
+
+import ifaxbotcovid.dateline as dateline
+import ifaxbotcovid.regioncounter as regioncounter
+import ifaxbotcovid.config.schemes as s
+import ifaxbotcovid.tables as tables
+import ifaxbotcovid.config.regex as regex
 
 class Parser():
 
@@ -62,7 +63,7 @@ class Parser():
                         return item
                 return ''
             else:
-                return item
+                return value[0]
         else:
             return value
 
@@ -93,8 +94,7 @@ class Parser():
             except Exception:
                 self.log.append('<b>Переменная не заполнена: {}</b>'.format(value_name))
         self.compute_russia_active()
-        #VALUES = manual_edit(VALUES) # если есть незаполненные переменные, предлагаем пользователю ввести их вручную
-
+        
     def comma1000(self, n): # делит на 1000, меняет точку на запятую, округляет (1234 => 1,23)
         try:
             n = round(int(n) / 1000, 2)
@@ -196,14 +196,3 @@ class Parser():
             attention_message = '***   ВНИМАНИЕ! %s цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n' % str(self.NAcounter())
             return (attention_message, result)
         return result
-
-# for testing usage only        
-if __name__ == '__main__':
-    import pprint
-    if pyperclip.paste is not None:
-        rawtext = pyperclip.paste()
-        parser = Parser(rawtext)
-        text = parser()
-        pyperclip.copy(text)
-        pprint.pprint(parser.log)
-        
