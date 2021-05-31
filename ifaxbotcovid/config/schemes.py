@@ -36,12 +36,12 @@ golden_cite             # a piece of original raw text for the second paragraph
 flash = '''ЭМБАРГО
 
 МОЛНИЯ
-В РФ ВЫЯВЛЕНО {russia_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ COVID-19 ЗА СУТКИ ({russia_current_pace}), {russia_new_deaths} УМЕРШИХ, {russia_new_recovered} ТЫС. ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
-1** (1ку)
+В РФ ВЫЯВЛЕНО {russia_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ COVID-19 ЗА СУТКИ ({russia_current_pace}), {russia_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {russia_new_recovered} ТЫС. ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
+1**
 
 МОЛНИЯ
-В МОСКВЕ {moscow_new_cases} НОВЫХ СЛУЧАЕВ КОРОНАВИРУСА, {moscow_new_deaths} СМЕРТЕЙ, {moscow_new_recovered} ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
-1** (1ку) ЭМБАРГО
+В МОСКВЕ ВЫЯВЛЕНО {moscow_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ КОРОНАВИРУСОМ ЗА СУТКИ, {moscow_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {moscow_new_recovered} ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
+1**
 '''
 
 ###
@@ -55,11 +55,11 @@ text = '''
 Москва. {date_dateline}. ИНТЕРФАКС - Суточный прирост новых заболевших коронавирусной инфекцией составил {russia_new_cases} тыс. случаев, умерли за сутки {russia_new_deaths} пациентов, следует из данных оперативного штаба, обнародованных {date_day}.
 "{golden_cite}", - говорится в сообщении штаба.
 Нарастающим итогом в России зарегистрировано {russia_total_cases} случаев коронавирусной инфекции, {russia_total_deaths} умерших и {russia_total_recovered} выписанных ({russia_new_recovered} выписаны за последние сутки). Таким образом, общее количество активных случаев в стране (общее число случаев за вычетом всех выздоровевших и всех умерших) на текущий момент составляет {russia_active}.
-ПОКАЗАТЕЛИ ПРИРОСТА И СМЕРТНОСТИ В СТОЛИЦЕ И РЕГИОНАХ
 В Москве {date_day}, сообщает оперативный штаб, {moscow_new_cases} новых случаев COVID-19 за сутки, {moscow_new_deaths} смертей и {moscow_new_recovered} выздоровевших.
+ПОКАЗАТЕЛИ ПРИРОСТА И СМЕРТНОСТИ В РЕГИОНАХ
 {ready_cases}
 {ready_deaths}
-1** (1ку) ЭМБАРГО'''
+1** ЭМБАРГО'''
 
 ###
 ### pattern for RPN COVID-testing daily message

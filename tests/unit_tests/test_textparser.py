@@ -2,6 +2,7 @@
 Tests textparser.py functionality along with its dependencies
 '''
 
+from os import truncate
 from pathlib import Path
 
 from ifaxbotcovid import textparser
@@ -77,6 +78,14 @@ class TestUnitParser:
         def test_change_shape3(self):
             result = TestUnitParser.parser.change_shape('376')
             assert result == '376'
+        
+        def test_change_shape_caps(self):
+            result = TestUnitParser.parser.change_shape('1091006', caps=True)
+            assert result == '1 МЛН 091 ТЫС. 006'
+        
+        def test_change_shape_caps2(self):
+            result = TestUnitParser.parser.change_shape('10379', caps=True)
+            assert result == '10 ТЫС. 379'
 
     class TestTableDetection:
 

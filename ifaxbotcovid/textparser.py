@@ -109,7 +109,7 @@ class Parser():
         n = regex1.sub(',', str(n))
         return n
 
-    def change_shape(self, arg): # меняем '1098007' на строку '1 млн 098 тыс. 007' 
+    def change_shape(self, arg, caps=False): # меняем '1098007' на строку '1 млн 098 тыс. 007' 
         try:
             arg = int(arg) # подстраховываемся на случай, если на входе будет NO_VALUE
             zfill = lambda x: str(x).zfill(3) # объявим безымянную функцию для '7' ==> '007'
@@ -120,11 +120,17 @@ class Parser():
             millions = int(arg/1000000)
             thousands = int(arg/1000) - millions*1000
             hundreds = int(arg) - millions*1000000 - thousands*1000
-            return '%s млн %s тыс. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
+            if caps:
+                return '%s МЛН %s ТЫС. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
+            else:
+                return '%s млн %s тыс. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
         elif arg > 1000:
             thousands = int(arg/1000)
             hundreds = int(arg) - thousands*1000
-            return '%s тыс. %s' % (str(thousands), zfill(str(hundreds)))
+            if caps:
+                return '%s ТЫС. %s' % (str(thousands), zfill(str(hundreds)))
+            else:
+                return '%s тыс. %s' % (str(thousands), zfill(str(hundreds)))
         else:
             return str(arg)
 
@@ -132,14 +138,14 @@ class Parser():
         
         try:
             flash = self.flash_pattern.format( # .format_map(VALUES) не используется, т.к. некоторые данные в словаре нужно предобработать 
-                        russia_new_cases=self.values['russia_new_cases'],
+                        russia_new_cases=self.change_shape(self.values['russia_new_cases'], caps=True),
                         russia_current_pace=self.values['russia_current_pace'],
                         russia_new_deaths=self.values['russia_new_deaths'],
-                        russia_new_recovered=self.comma1000(self.values['russia_new_recovered']), # меняем точку на запятую, делим на 1000, округляем
+                        russia_new_recovered=self.change_shape(self.values['russia_new_recovered'], caps=True), # меняем точку на запятую, делим на 1000, округляем
                         russia_total_cases=self.values['russia_total_cases'],
-                        moscow_new_cases=self.values['moscow_new_cases'],
+                        moscow_new_cases=self.change_shape(self.values['moscow_new_cases'], caps=True),
                         moscow_new_deaths=self.values['moscow_new_deaths'],
-                        moscow_new_recovered=self.values['moscow_new_recovered'],
+                        moscow_new_recovered=self.change_shape(self.values['moscow_new_recovered'], caps=True),
                         date_dateline=self.values['date_dateline'],
                         date_day=self.values['date_day']
                         )
