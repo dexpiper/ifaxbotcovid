@@ -2,7 +2,6 @@
 Tests textparser.py functionality along with its dependencies
 '''
 
-from os import truncate
 from pathlib import Path
 
 from ifaxbotcovid import textparser
@@ -128,3 +127,32 @@ class TestUnitParser:
                     failed_keys.append(key)
             assert errors == 0,\
                 f'Expected values did not found. Failed keys: {str(failed_keys)}'
+        
+        def test_fool_check(self):
+            
+            good_dct = {'russia_new_cases' : '7920',
+                'russia_current_pace' : '+0,16%',
+                'russia_new_deaths' : '390',
+                'russia_new_recovered' : '9 561',
+                'russia_total_cases' : '4960000',
+                'moscow_new_cases' : '2096',
+                'moscow_new_deaths' : '61',
+                'moscow_new_recovered' : '2663',
+                'date_dateline' : '7 июня',
+                'date_day' : 'в понедельник',
+                'golden_cite' : 'Большая и длинная цитата',
+                'russia_total_deaths' : '116600',
+                'russia_total_recovered' : '4600000',
+                'russia_active' : '99999',
+                }
+
+            bad_dct = good_dct.copy()
+            bad_dct['russia_total_cases'] = '4957740'
+            bad_dct['russia_total_deaths'] = '116560'
+            bad_dct['russia_total_recovered'] = '72226'
+
+            assert TestUnitParser.parser.fool_check(good_dct) == False,\
+                f"Fool_check method have found a mistake where there shouldn't be one"
+            assert TestUnitParser.parser.fool_check(bad_dct),\
+                f"Fool_check method failed to detect error"
+

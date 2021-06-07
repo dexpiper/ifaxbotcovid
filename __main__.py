@@ -71,8 +71,8 @@ def main_call(msg, text=None):
         news_parser = textparser.Parser(text)
         ready_news = news_parser()
         if type(ready_news) is tuple:
-            bot.send_message(msg.chat.id, ready_news[0])
             bot.send_message(msg.chat.id, ready_news[1])
+            bot.send_message(msg.chat.id, ready_news[0])
         else:
             bot.send_message(msg.chat.id, ready_news)
     if getlog == True:
