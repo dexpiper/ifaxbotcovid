@@ -5,6 +5,7 @@ import ifaxbotcovid.regioncounter as regioncounter
 import ifaxbotcovid.config.schemes as s
 import ifaxbotcovid.tables as tables
 import ifaxbotcovid.config.regex as regex
+import ifaxbotcovid.config.settings as settings
 
 class Parser():
 
@@ -134,6 +135,27 @@ class Parser():
         else:
             return str(arg)
 
+    @staticmethod
+    def fool_check(values_dct):
+        message = []
+        reference = settings.base_vars
+        for element in reference.items():
+            var = element[0]
+            reference_value = element[1]
+            try:
+                if int(values_dct[var]) >= int(reference_value):
+                    pass
+                else:
+                    message.append(f'Значение переменной {var} ({values_dct[var]}) меньше референсного значения')
+            except Exception:
+                pass
+        if len(message) >= 1:
+            message.insert(0, '***   ВНИМАНИЕ!')
+            message.append('\n\n!!! Рекомендуется проверить отправленный боту текст.\n')
+            return '\n'.join(message)
+        else:
+            return False
+
     def fill_the_gaps(self):
         
         try:
@@ -188,6 +210,7 @@ class Parser():
         return result
 
     def __call__(self):
+        attention_message = ''
         self.find_values()
         result = self.fill_the_gaps()
         if len(result) >= 4095:
@@ -198,7 +221,12 @@ class Parser():
                 result = self.fill_the_gaps()
                 if len(result) <= 4090: # лимит Telegram на длину одного сообщения
                     break
+        check_message = self.fool_check(self.values)
+        if check_message:
+            attention_message += check_message
         if 'NO_VALUE' in result:
-            attention_message = '***   ВНИМАНИЕ! %s цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n' % str(self.NAcounter())
+            attention_message += f'***   ВНИМАНИЕ! {str(self.NAcounter())} цифры(-у) или значения(-ний) в тексте релиза найти не удалось (заменено на "NO_VALUE").\n\n'
+        if len(attention_message) > 1:
             return (attention_message, result)
-        return result
+        else:
+            return result
