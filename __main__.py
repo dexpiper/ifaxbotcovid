@@ -2,7 +2,6 @@ import telebot
 import time
 import os
 from collections import deque as deque
-import threading
 
 import ifaxbotcovid.textparser as textparser
 import ifaxbotcovid.config.startmessage as startmessage

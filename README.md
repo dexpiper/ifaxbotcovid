@@ -18,15 +18,23 @@ Simple Telegram bot. Helps journalists to fetch data from daily COVID-19 officia
 ### Technologies and libraries
 
 Project is created with:
+
 * Python 3.8.2
-* re module for parsing
-* [pyTelegramBotAPI 3.7.3](https://github.com/eternnoir/pyTelegramBotAPI)
-* pytest for automated tests, pyperclip and pprint for manual tests
+* [pyTelegramBotAPI 3.7.9](https://github.com/eternnoir/pyTelegramBotAPI)
+* pytest (tests)
+* venv (virtual environment)
+* Git (version control)
+
+* Key functionality (finding values in text) heavily depends on the *re* module from the Standard Library that provides regular expression operations.
+* *Collections.deque* (Standard Library) is applied to organize memory efficient and fast left-to-right queue. This queue saves last messages sent to the bot and the time of their arrival thus allowing to glue together long text that Telegram tend to cut apart.
+* *pyperclip* module is used to support manual tests, providing fast and easy way to paste large text directly from the clipboard (as input). Manual tests are implemented along with automated ones to ensure that output of the key modules *textparser.py* and *rpn.py* looks nice and clean.
+
+* The bot runs at *Heroku*, pipelined directly from the main brunch of this repository.
 
 ### Scope of functionalities
 
 **General function**
-- User sends the press-release as a simple message to the bot. Every message long enough to be the COVID-19 release would be considered as a source text. First, bot glues two sequential messages (sent less then 1 sec from each other). Then it gives the raw text to the Parser (*parser. py*). 
+- User sends the press-release as a simple message to the bot. Every message long enough to be the COVID-19 release would be considered as a source text. First, bot glues two sequential messages (sent less then 1 sec from each other). Then it gives the raw text to the Parser (*textparser. py*). 
 - Parser finds values essential for the future news material with pre-written regexes (the *re* module from the Standard Python Library). It is the number of new COVID-19 cases registered officially in Russia, new deaths, and new patients who were considered as recovered. Also Parser searches for other variables such as total cases, total deaths, total recovered, number of cases, deaths and recovered persons in Moscow, a piece of text for the cite in the future news material etc. 
 - Also Parser calls *Tables. py* module for processing long lists of Russian regions and their cases and deaths. Out comes nicely sorted and transformed blocks of text (*RegionCounter. py*).
 - All the found variables and ready region blocks fit into patterns in the *schemes. py*. In the outcome, bot gets a ready-to-use news material and sends it to the user.
