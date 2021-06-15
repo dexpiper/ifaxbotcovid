@@ -1,30 +1,91 @@
-import telebot
 import time
 import os
+import logging
 from collections import deque as deque
 
+# importing TelegramBotAPI
+import telebot
+
+# internal modules
 import ifaxbotcovid.textparser as textparser
 import ifaxbotcovid.config.startmessage as startmessage
+import ifaxbotcovid.config.settings as settings
 import ifaxbotcovid.rpn as rpn
 
+#
 # CHANGE TO "FALSE" BEFORE DEPLOY
+# 
 TESTMODE = False
 
 if TESTMODE == False:
     TOKEN = os.environ['TOKEN']
 else:
-    import ifaxbotcovid.config.settings as settings
-    TOKEN = settings.TOKEN
+    # token.py for testing purposes with TOKEN var .gitignore'd
+    import ifaxbotcovid.config.token as tkn
+    TOKEN = tkn.TOKEN
 
+#
+# Setting telebot instance
+#
 bot = telebot.TeleBot(TOKEN)
 
+#
+# Logging settings
+#
+logger = logging.getLogger('main')
+telebot_logger = telebot.logger
+logger.setLevel(logging.INFO)
+telebot_logger.setLevel(logging.INFO)
+
+# creating handlers
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler('logfile.log')
+file_handler.setLevel(logging.INFO)
+
+# applying format to handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s : %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# adding handlers
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+telebot_logger.addHandler(console_handler)
+telebot_logger.addHandler(file_handler)
+
+if TESTMODE == True:
+    logger.warning('Working in "test mode", using test token')
+
+#
+# Functions
+#
 def gluer(msg, getlog=False):
+    '''
+    Function concatenates texts sent in 2 sequentional messages
+    from single user with less then 1 sec delay (Telegram cuts
+    apart long messages automaticly, but we need to process both 
+    pieces)
+
+    getlog key (bool) is optional
+
+    - "db" is a collections.deque object, maxlen=2
+    - each item in the queue is a tuple: 
+        (time.time, 'message text' and 'chat_id')
+
+    '''
     old_time = int(db[0][0])
     new_time = int(db[1][0])
+    old_chat_id = db[0][2]
+    new_chat_id = db[1][2]
 
-    if new_time - old_time < 1:
+    if (
+        new_time - old_time < 1) and (
+        old_chat_id == new_chat_id
+        ):
+
         text = db[0][1] + msg.text # text - склеенный кусок текста
-        print('Склеено длинное сообщение')
+        logger.debug('Long message glued / Склеено длинное сообщение')
         if text[:2].lower() == 'йй' or text[-2:].lower() == 'йй':
             getlog = True
         return text, getlog
@@ -32,6 +93,10 @@ def gluer(msg, getlog=False):
         return None, None
 
 def log_construct(log):
+    '''
+    Here we construct a single string to send to the user
+    as a log message (parsing results)
+    '''
     result = ''
     try:
         for el in log:
@@ -41,60 +106,194 @@ def log_construct(log):
             else:
                 result += (el + '\n')
     except Exception as exc:
-        print(exc)
+        logger.warning('Exception raised during log construction: %s' % exc)
     return result
 
-def rpn_call(msg):
+def pre_call(msg):
+    '''
+    Pre-processing the text from message
+    '''
     rawtext = msg.text
-    
+    user = msg.from_user.username
+
+    # Firstly, checking if there is the key word with a log request
+    # (short procedure)
     if (rawtext[:2].lower() == 'йй' or
         rawtext[-2:].lower() == 'йй'
-        ) and ('Роспотребнадзор:' in rawtext):
+        ) and ('роспотребнадзор' in rawtext.lower()):
+
         RPN_constructor = rpn.RPN(rawtext)
         text, log = RPN_constructor.construct(), RPN_constructor.log
         log = log_construct(log)
         bot.send_message(msg.chat.id, text)
         bot.send_message(msg.chat.id, log, parse_mode='HTML')
+        logger.info('RPN message sent to %s along with a log' % user)
         return False
-    elif rawtext[:16].lower() == 'роспотребнадзор:':
+
+    # Secondly, checking the key word without a log request
+    # (short procedure)
+    elif rawtext[:16].lower() == 'роспотребнадзор':
         RPN_constructor = rpn.RPN(rawtext)
         text = RPN_constructor.construct()
         bot.send_message(msg.chat.id, text)
+        logger.info('RPN message sent to %s' % user)
         return False
+
+    # else, bot would process message further    
     else:
         return True
 
 def main_call(msg, text=None):
-    text, getlog = gluer(msg)
-    if text != None:
-        news_parser = textparser.Parser(text)
-        ready_news = news_parser()
-        if type(ready_news) is tuple:
-            bot.send_message(msg.chat.id, ready_news[1])
-            bot.send_message(msg.chat.id, ready_news[0])
-        else:
-            bot.send_message(msg.chat.id, ready_news)
-    if getlog == True:
+    '''
+    Processing long text 
+    '''
+    text, getlog = gluer(msg) # sticking together 2 sequentional messages
+    user = msg.from_user.username
+    
+    # checking if there are some other key words in text
+    # to process it as a big press-release (long procedure)
+    if text != None and all(
+        (True if word in text.lower() else False
+        for word in settings.key_words)
+        ):
+        logger.debug('Main_call() reached requesed condition')
+        
+        try:
+            # here we calling long procedure module...
+            #
+            news_parser = textparser.Parser(text)
+            ready_news = news_parser()
+
+            # ...and sending template with the found vars to the user
+            #
+            if type(ready_news) is tuple: 
+                # ready_news came along with a warning message
+                bot.send_message(msg.chat.id, ready_news[1])
+                bot.send_message(msg.chat.id, ready_news[0])
+                logger.info('Ready news text sent to user %s. \
+Attention message included: %s' % (
+                        user, 
+                        ready_news[0][16:-56]) # deleting unnecessery parts of message
+                        )
+            else:
+                # ready_news just came along
+                bot.send_message(msg.chat.id, ready_news)
+                logger.info('Ready news text sent to user %s' % user)
+        except Exception as exc:
+            logger.error("An exception raised when processing %s's input: %s" % (user, exc))
+
+    else:
+        # nothing to do, returning
+        return
+
+    # if user asked for a log, we kindly send it by track...
+    #
+    if getlog == True: 
+        
         log = log_construct(news_parser.log)
         bot.send_message(msg.chat.id, log, parse_mode='HTML')
-    return
-            
+        logger.info('Log message sent to user %s' % user)
 
+    # ...and, finally, returning back    
+    return
+
+def send_log(msg):
+    '''
+    Sending log to the user
+    '''
+    try:
+        bot.send_document(msg.chat.id, open('logfile.log'), 'document')
+    except Exception as exc:
+        logger.error('No system log file found! Exception: %s' % exc)
+    
+#
+# Message handlers
+#
 @bot.message_handler(commands=['start'])
 def answer_start(message):
+    '''
+    Bot sends welcome message
+    '''
     bot.send_message(message.chat.id, startmessage.s, parse_mode='HTML')
+    logger.info('User %s issued "start" command' % message.from_user.username)
+    user = message.from_user.username
+    chat_id = message.chat.id
+    if (user, chat_id) not in settings.users:
+        settings.users.append((user, chat_id))
 
+@bot.message_handler(commands=['syslog'])
+def syslog_sender(message):
+    '''
+    Bot sends system log as a file (admin only)
+    '''
+    user = message.from_user.username
+    chat_id = message.chat.id
+    logger.info('User %s requested "syslog" file via command' % user)
+    if chat_id in settings.admins:
+        logger.debug('Admin privileges grunted')
+        send_log(message)
+    else:
+        logger.warning('Access to user %s denied' % user)
+        bot.send_message(message.chat.id, '<b>Access denied</b>', parse_mode='HTML')
+
+@bot.message_handler(commands=['users'])
+def users_sender(message):
+    '''
+    Bot sends list of users (admin only)
+    '''
+    user = message.from_user.username
+    chat_id = message.chat.id
+    logger.info('User %s issued "users" command' % user)
+    if chat_id in settings.admins:
+        logger.debug('Admin privileges grunted')
+        if settings.users:
+            user_list = '<b>Registered users:</b>\n\n'
+            counter = 0
+            for item in settings.users:
+                counter += 1
+                _name = item[0]
+                _id = item[1]
+                user_list += f'{counter}. Name: {_name}, chat_id: {_id}\n'
+            user_list += f'\n<b>Total: {counter}</b>'
+            logger.debug(f'USER LIST: {user_list}')
+            bot.send_message(message.chat.id, user_list, parse_mode='HTML')
+        else:
+            bot.send_message(message.chat.id, 'No users registered')
+    else:
+        logger.warning('Access to user %s denied' % user)
+        bot.send_message(message.chat.id, '<b>Access denied</b>', parse_mode='HTML')
+    
 @bot.message_handler(content_types=['text'])
 def base_function(message):
-    db.append((int(message.date), message.text))
-    proceed_mode = rpn_call(message)
+    '''
+    Bot process any text sent to it.
+    1) Short text with "Роспотребнадзор" in it whould be dealed 
+    as an RPN message. A short string without the key word would
+    yeild no answer.
+    2) Else, any long text in two messages sent one by one with
+    a very short interval would be glued together and parsed as
+    a COVID-19 press-reliase. User will recieve a template answer
+    with found variables inserted in gaps. 
+    3) If no values found, user will get empty template with gaps
+    and a warning message.
+    '''
+    logger.debug('User %s sent some text' % message.from_user.username)
+    db.append((int(message.date), message.text, message.chat.id))
+    proceed_mode = pre_call(message)
     if proceed_mode == False:
+        logger.debug('proceed_mode == False, returned')
         return
     else:
         main_call(message)
+        user = message.from_user.username
+        chat_id = message.chat.id
+        if (user, chat_id) not in settings.users:
+            settings.users.append((user, chat_id))
         return
 
 if __name__ == '__main__':
-    print('Starting botcovid...')
-    db = deque(maxlen=2); db.append( (int(time.time()), '') )
+    # setting the queue to store sequential messages
+    db = deque(maxlen=2)
+    db.append( (int(time.time()), '', '') )
+    # starting polling
     bot.polling(none_stop=True)
