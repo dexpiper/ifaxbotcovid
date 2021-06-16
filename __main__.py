@@ -132,7 +132,7 @@ def pre_call(msg):
 
     # Secondly, checking the key word without a log request
     # (short procedure)
-    elif rawtext[:16].lower() == 'роспотребнадзор':
+    elif rawtext[:15].lower() == 'роспотребнадзор':
         RPN_constructor = rpn.RPN(rawtext)
         text = RPN_constructor.construct()
         bot.send_message(msg.chat.id, text)
