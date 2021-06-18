@@ -280,15 +280,15 @@ def base_function(message):
     logger.debug('User %s sent some text' % message.from_user.username)
     db.append((int(message.date), message.text, message.chat.id))
     proceed_mode = pre_call(message)
+    user = message.from_user.username
+    chat_id = message.chat.id
+    if (user, chat_id) not in settings.users:
+        settings.users.append((user, chat_id))        
     if proceed_mode == False:
         logger.debug('proceed_mode == False, returned')
         return
     else:
         main_call(message)
-        user = message.from_user.username
-        chat_id = message.chat.id
-        if (user, chat_id) not in settings.users:
-            settings.users.append((user, chat_id))
         return
 
 if __name__ == '__main__':
