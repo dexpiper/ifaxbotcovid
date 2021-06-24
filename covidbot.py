@@ -3,6 +3,8 @@ import os
 import logging
 from collections import deque as deque
 
+# importing flask
+from flask import Flask, request
 # importing TelegramBotAPI
 import telebot
 
@@ -29,12 +31,16 @@ else:
 #
 bot = telebot.TeleBot(TOKEN)
 
+# Setting flask and define webhook settings
+server = Flask(__name__)
+URL = os.environ['URL']
+
 #
 # Logging settings
 #
 logger = logging.getLogger('main')
-telebot_logger = telebot.logger
 logger.setLevel(logging.INFO)
+telebot_logger = telebot.logger
 telebot_logger.setLevel(logging.INFO)
 
 # creating handlers
@@ -58,7 +64,7 @@ if TESTMODE == True:
     logger.warning('Working in "test mode", using test token')
 
 #
-# Functions
+# Bot Functions
 #
 def gluer(msg, getlog=False):
     '''
@@ -291,9 +297,31 @@ def base_function(message):
         main_call(message)
         return
 
+#
+# Routes
+#
+@server.route('/' + TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+@server.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    bot.remove_webhook()
+    s = bot.set_webhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
+
+@server.route('/')
+def index():
+    return '.'
+
+
 if __name__ == '__main__':
     # setting the queue to store sequential messages
     db = deque(maxlen=2)
     db.append( (int(time.time()), '', '') )
-    # starting polling
-    bot.polling(none_stop=True)
+    # starting server
+    server.run(threaded=True)
