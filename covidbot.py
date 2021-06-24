@@ -39,15 +39,15 @@ URL = os.environ['URL']
 # Logging settings
 #
 logger = logging.getLogger('main')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 telebot_logger = telebot.logger
-telebot_logger.setLevel(logging.INFO)
+telebot_logger.setLevel(logging.DEBUG)
 
 # creating handlers
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('logfile.log')
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.DEBUG)
 
 # applying format to handlers
 formatter = logging.Formatter('%(asctime)s - %(name)s : %(levelname)s - %(message)s')
