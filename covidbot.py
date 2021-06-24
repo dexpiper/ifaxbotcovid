@@ -32,7 +32,7 @@ else:
 bot = telebot.TeleBot(TOKEN)
 
 # Setting flask and define webhook settings
-server = Flask(__name__)
+app = Flask(__name__)
 URL = os.environ['URL']
 
 #
@@ -300,12 +300,12 @@ def base_function(message):
 #
 # Routes
 #
-@server.route('/' + TOKEN, methods=['POST'])
+@app.route('/' + TOKEN, methods=['POST'])
 def getMessage():
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
     return "!", 200
 
-@server.route('/setwebhook', methods=['GET', 'POST'])
+@app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
     bot.remove_webhook()
     s = bot.set_webhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
@@ -314,7 +314,7 @@ def set_webhook():
     else:
         return "webhook setup failed"
 
-@server.route('/')
+@app.route('/')
 def index():
     return '.'
 
@@ -324,4 +324,4 @@ if __name__ == '__main__':
     db = deque(maxlen=2)
     db.append( (int(time.time()), '', '') )
     # starting server
-    server.run(threaded=True)
+    app.run(threaded=True)
