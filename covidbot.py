@@ -63,6 +63,10 @@ telebot_logger.addHandler(file_handler)
 if TESTMODE == True:
     logger.warning('Working in "test mode", using test token')
 
+# setting the queue to store sequential messages
+db = deque(maxlen=2)
+db.append( (int(time.time()), '', '') )
+
 #
 # Bot Functions
 #
@@ -320,8 +324,5 @@ def index():
 
 
 if __name__ == '__main__':
-    # setting the queue to store sequential messages
-    db = deque(maxlen=2)
-    db.append( (int(time.time()), '', '') )
     # starting server
     app.run(threaded=True)
