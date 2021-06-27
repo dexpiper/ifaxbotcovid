@@ -6,6 +6,8 @@ Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
 * [Introduction](#introduction)
 * [Technologies and libraries](#technologies-and-libraries)
 * [Scope of functionalities](#scope-of-functionalities)
+    [Internal](#internal)
+    [External](#external)
 * [Examples of use](#examples-of-use)
 * [Project structure](#structure)
 * [Sources](#sources)
@@ -15,13 +17,13 @@ Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
 
 Simple Telegram bot. Helps journalists to fetch data from Russian daily COVID-19 official press-releases and write news materials on their basis. Initialized by journalist for fellow colleagues from Interfax News Group (Moscow) to save time when dealing with the daily routine. The bot neither stores data, nor pulls any from the web - it just parses the sent text and fills the pre-written form:
 
-user sends text *==>*
-bot finds variables and organizes them *==>*
-bot fills templates with found variables *==>*
-bot sends back ready news material.
+> user sends text *==>*
+> bot finds variables and organizes them *==>*
+> bot fills templates with found variables *==>*
+> bot sends back ready news material.
 
-* In total bot is settled to find *11 variables* in the COVID-19 press-release, issued by Russian authorities: the numbers of registered COVID patients, COVID-related deaths and recovered patients in Russia and in Moscow separately for the last 24 hours, total sum of this variables since the start of the pandemic etc. 
-* Also bot re-writes long tables of new cases and deaths in the release, grouping regions by numbers of cases/deaths. Algorithm finds and detects the type of correspondent part of text, takes all the information into a dictionary and build ready text region by region, string by string (implemented in *ifaxbotcovid.regioncounter*).
+* Bot is settled to find *11 variables* in the COVID-19 press-release, issued by Russian authorities: the numbers of registered COVID patients, COVID-related deaths and recovered patients in Russia and in Moscow separately for the last 24 hours, total sum of this variables since the start of the pandemic etc. 
+* Also bot re-writes long tables of new cases and deaths in the release, grouping regions by numbers of cases/deaths. Algorithm finds and detects the type of correspondent part of text, takes all the information into a dictionary and build ready text: region by region, string by string (implemented in *ifaxbotcovid.regioncounter*).
 * All variables, found and generated, and ready re-written region tables go to the news material template. With all the gaps filled, ready news material is stamped out to the user.
 
 ### Technologies and libraries
@@ -48,18 +50,18 @@ Project is created with:
 - Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). All regexes are defined in *ifaxbotcovid.config.regex* module. Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
 
 **Variables to find**:
-   - COVID cases            - \
-   - COVID deaths           -- *in Moscow and in Russia registered officially for the last 24h*
-   - recovered patients     - /
-   - total number of cases      - \
-   - total number of deaths     -- *in Russia, since the start of the pandemic*
-   - total number of recovered  - /
+   - COVID cases ----------- \
+   - COVID deaths ------------ *in Moscow and in Russia registered officially for the last 24h*
+   - recovered patients ---- /
+   - total number of cases ------ \
+   - total number of deaths ----- *in Russia, since the start of the pandemic*
+   - total number of recovered -- /
    - growth rate ("pace")
    - quotation from the start of the release
 
 **Variables to generate**:
    - Active cases = total cases - (total deaths + total recovered)
-   - Dateline and name of day of the week (form *time.time* with respect to morphological phorm and preposition in Russian language)
+   - Dateline and name of day of the week (from *time.time* with respect to morphological phorm and preposition in Russian language)
    - Re-written tables about other regions statistics
 
 - All the found variables and ready region blocks fit into patterns in the *ifaxcovidbot.config.schemes*. In the outcome, bot gets a ready-to-use news material and sends it to the user.
@@ -70,9 +72,9 @@ Project is created with:
 Bot also can parse a short piece of text provided daily by the press-office of the RPN (Russian Federal agency in charge of virus protection, Rospotrebnadzor), containing information about COVID tests performed in Russia.
 
 - If bot detects this kind of text in incoming message (it is a simple and rather small string), it finds 3 variables in it:
-  > total number of tests, 
-  > tests done for the last 24 h, 
-  > peoples under the medical monitoring
+  + total number of tests, 
+  + tests done for the last 24 h, 
+  + peoples under the medical monitoring
 
 - Then puts variables into template (*ifaxbotcovid.config.settings*) and gives the user ready-to-use block of text in the answer message.
 
