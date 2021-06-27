@@ -5,9 +5,9 @@ Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
 ### Table of contents
 * [Introduction](#introduction)
 * [Technologies and libraries](#technologies-and-libraries)
-* [Scope of functionalities](#scope-of-functionalities)
-- ----[Internal](#internal)
-- ----[External](#external)
+* [Scope of functionalities](#scope-of-functionalities):
+      [Internal](#internal)
+      [External](#external)
 * [Examples of use](#examples-of-use)
 * [Project structure](#structure)
 * [Sources](#sources)
