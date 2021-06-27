@@ -13,6 +13,8 @@ Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
 6. [Sources](#sources)
 7. [Further development](#further-development)
 
+***
+
 ### Introduction
 
 Simple Telegram bot. Helps journalists to fetch data from Russian daily COVID-19 official press-releases and write news materials on their basis. Initialized by journalist for fellow colleagues from Interfax News Group (Moscow) to save time when dealing with the daily routine. The bot neither stores data, nor pulls any from the web - it just parses the sent text and fills the pre-written form:
@@ -101,6 +103,8 @@ Two env vars should be defind:
 
 Webhook should be registered manualy by "*URL*/setwebhook" request.
 Token for testing purposes could be defined in *ifaxbotcovid.config.token.TOKEN*
+
+***
 
 ### Examples of use
 
