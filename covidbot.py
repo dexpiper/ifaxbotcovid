@@ -3,6 +3,8 @@ import os
 import logging
 from collections import deque as deque
 
+# importing flask
+from flask import Flask, request
 # importing TelegramBotAPI
 import telebot
 
@@ -29,19 +31,23 @@ else:
 #
 bot = telebot.TeleBot(TOKEN)
 
+# Setting flask and define webhook settings
+app = Flask(__name__)
+URL = os.environ['URL']
+
 #
 # Logging settings
 #
 logger = logging.getLogger('main')
+logger.setLevel(logging.DEBUG)
 telebot_logger = telebot.logger
-logger.setLevel(logging.INFO)
-telebot_logger.setLevel(logging.INFO)
+telebot_logger.setLevel(logging.DEBUG)
 
 # creating handlers
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('logfile.log')
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.DEBUG)
 
 # applying format to handlers
 formatter = logging.Formatter('%(asctime)s - %(name)s : %(levelname)s - %(message)s')
@@ -57,8 +63,12 @@ telebot_logger.addHandler(file_handler)
 if TESTMODE == True:
     logger.warning('Working in "test mode", using test token')
 
+# setting the queue to store sequential messages
+db = deque(maxlen=2)
+db.append( (int(time.time()), '', '') )
+
 #
-# Functions
+# Bot Functions
 #
 def gluer(msg, getlog=False):
     '''
@@ -291,9 +301,28 @@ def base_function(message):
         main_call(message)
         return
 
+#
+# Routes
+#
+@app.route('/' + TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+@app.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    bot.remove_webhook()
+    s = bot.set_webhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
+
+@app.route('/')
+def index():
+    return '.'
+
+
 if __name__ == '__main__':
-    # setting the queue to store sequential messages
-    db = deque(maxlen=2)
-    db.append( (int(time.time()), '', '') )
-    # starting polling
-    bot.polling(none_stop=True)
+    # starting server
+    app.run(threaded=True)
