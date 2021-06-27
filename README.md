@@ -63,7 +63,7 @@ Project is created with:
 
 **Variables to generate**:
    - Active cases = total cases - (total deaths + total recovered)
-   - Dateline and name of day of the week (from *time.time* with respect to morphological phorm and preposition in Russian language)
+   - Dateline and name of day of the week (from *time.time* with respect to morphological form and preposition in Russian language)
    - Re-written tables about other regions statistics
 
 - All the found variables and ready region blocks fit into patterns in the *ifaxcovidbot.config.schemes*. In the outcome, bot gets a ready-to-use news material and sends it to the user.
