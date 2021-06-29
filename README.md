@@ -1,6 +1,6 @@
 # ifaxBotCovid - reporter's helper
 
-Currently available at https://t.me/ifaxcovidbot, deployed at Heroku.
+Currently available at https://t.me/ifaxcovidbot.
 
 ### Table of contents
 1. [Introduction](#introduction)
@@ -23,6 +23,8 @@ Simple Telegram bot. Helps journalists to fetch data from Russian daily COVID-19
 > bot finds variables and organizes them *==>*
 > bot fills templates with found variables *==>*
 > bot sends back ready news material.
+
+You can test the bot out with any of sample press-releases from *ifaxbotcovid/tests/test_data* folder of this repo. The ones with "corrupted" in names would yeild an error.
 
 * Bot is settled to find *11 variables* in the COVID-19 press-release, issued by Russian authorities: the numbers of registered COVID patients, COVID-related deaths and recovered patients in Russia and in Moscow separately for the last 24 hours, total sum of this variables since the start of the pandemic etc. 
 * Also bot re-writes long tables of new cases and deaths in the release, grouping regions by numbers of cases/deaths. Algorithm finds and detects the type of correspondent part of text, takes all the information into a dictionary and build ready text: region by region, string by string (implemented in *ifaxbotcovid.regioncounter*).
@@ -104,6 +106,18 @@ Two env vars should be defind:
 Webhook should be registered manualy by "*URL*/setwebhook" request.
 Token for testing purposes could be defined in *ifaxbotcovid.config.token.TOKEN*
 
+**Templates**
+
+Templates are stored in *ifaxbotcovid/config/schemes*. Any other templates could be used instead of the default ones, placeholders for variables are defined in curly brackets:
+
+```
+Some text here: {name_of_variable1}, {name_of_variable2}.
+Another piece of text
+etc.
+```
+
+Names of variables and their descriptions are listed in the file.
+
 ***
 
 ### Examples of use
@@ -144,7 +158,7 @@ Raw press release:
 За весь период выписано по выздоровлению по России  –  1 200 560
 ```
 
-Outcome:
+Outcome with default template:
 ```ЭМБАРГО
 
 МОЛНИЯ
