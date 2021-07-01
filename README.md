@@ -51,7 +51,7 @@ Project is created with:
 
 - User sends the press-release as a simple message to the bot. Every message long enough to be the COVID-19 release could be considered as a source text. First, bot glues two sequential messages (sent less then 1 sec from each other). Then it gives the raw text to the *ifaxcovidbot.textparser*, if defined key words are found.
 
-- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). All regexes are defined in *ifaxbotcovid.config.regex* module. Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
+- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). All regexes are defined in [*ifaxbotcovid.config.regex* module](https://github.com/dexpiper/ifaxbotcovid/blob/5363811584cac8b1266953a2e9e23576c96a9d47/ifaxbotcovid/config/regex.py). Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
 
 **Variables to find**:
    - COVID cases ----------- \
