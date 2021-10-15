@@ -214,7 +214,7 @@ class Parser():
         self.find_values()
         result = self.fill_the_gaps()
         if len(result) >= 4095:
-            for i in range(4): # увеличение self.short укорачивает таблицу новых случаев COVID-19 в регионах 
+            for i in range(6): # увеличение self.short укорачивает таблицу новых случаев COVID-19 в регионах 
                 self.log = []
                 self.short += 50
                 self.find_values()

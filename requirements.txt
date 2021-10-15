@@ -8,6 +8,7 @@ itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
 packaging==20.9
+psycopg2-binary==2.9.1
 pyparsing==2.4.7
 pyperclip==1.8.2
 pyTelegramBotAPI==3.7.9
