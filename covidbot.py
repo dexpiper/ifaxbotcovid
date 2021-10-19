@@ -73,7 +73,7 @@ db.append( (int(time.time()), '', '') )
 def gluer(msg, getlog=False):
     '''
     Function concatenates texts sent in 2 sequentional messages
-    from single user with less then 1.5 sec delay (Telegram cuts
+    from single user with less then 3 sec delay (Telegram cuts
     apart long messages automaticly, but we need to process both 
     pieces)
 
@@ -90,7 +90,7 @@ def gluer(msg, getlog=False):
     new_chat_id = db[1][2]
 
     if (
-        new_time - old_time < 1.5) and (
+        new_time - old_time < 3) and (
         old_chat_id == new_chat_id
         ):
 
