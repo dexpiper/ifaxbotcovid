@@ -1,6 +1,8 @@
 import os
 import logging
-import copy
+
+from flask import request
+import telebot
 
 from ifaxbotcovid.bot import factory
 from ifaxbotcovid.config import settings
@@ -21,6 +23,7 @@ chef = factory.create_chef(
     maxlen=3,
     time_gap=1.5
 )
+
 
 #
 # MESSAGE HANDLERS
@@ -51,6 +54,34 @@ def user_request(message):
             bot.send_message(message.chat.id, answer.log)
 
 
+#
+# FLASK ROUTES
+#
+@app.route('/' + TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates(
+        [telebot.types.Update.de_json(
+            request.stream.read().decode("utf-8")
+            )]
+    )
+    return "!", 200
+
+
+@app.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    bot.remove_webhook()
+    s = bot.set_webhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
+
+
+@app.route('/')
+def index():
+    return '.'
+
+"""
 # storing objects in flask config
 app.config['TELEBOT'] = bot
 app.config['TELEBOT_LOGGER'] = logger
@@ -65,3 +96,4 @@ with app.app_context():
     # getting and registering routes from blueprint
     from ifaxbotcovid.bot import routes
     app.register_blueprint(routes.main)
+"""
