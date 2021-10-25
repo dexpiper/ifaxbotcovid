@@ -21,7 +21,7 @@ chef = factory.create_chef(
     check_phrases=settings.key_words,
     stop_phrase=settings.stop_phrase,
     maxlen=3,
-    time_gap=1.5
+    time_gap=2
 )
 
 
