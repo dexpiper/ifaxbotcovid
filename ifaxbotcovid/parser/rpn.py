@@ -15,6 +15,8 @@ import re
 
 import ifaxbotcovid.config.schemes as schemes
 import ifaxbotcovid.parser.dateline as dateline
+from ifaxbotcovid.parser.utils import ParserHelpers
+
 
 class RPN:
 
@@ -38,20 +40,20 @@ class RPN:
     def del_space(txt):
         '''
         Deleting unwanted spaces in given string
-        '''      
+        '''
         regex1 = re.compile(r'\s')
         txt = regex1.sub('', txt)
         return txt
 
     @staticmethod
-    def get_key(dct, v):  
+    def get_key(dct, v):
         '''
         Method returns key of given dict by known value
-        '''	
+        '''
         return [key for key, value in dct.items() if value == v][0]
-    
+
     @staticmethod
-    def choose_value(value): 
+    def choose_value(value):
         '''
         Method cuts tuple like ('', 'number', '') to 'number'
         '''
@@ -92,7 +94,7 @@ class RPN:
                 self.log.append(
                     'Переменная не заполнена: {} ({})'.format(value_name, exc)
                     )
-    
+
     def construct(self):
         '''
         Main call as a function
@@ -109,8 +111,10 @@ class RPN:
                 date_day=date_day,
                 total_tests=total_tests,
                 recent_tests=recent_tests,
-                people_monitored=people_monitored
+                people_monitored=ParserHelpers.change_shape(
+                    people_monitored
                 )
+            )
         except Exception as exc:
             self.log.append('<b>Exception при попытке заполнить rpn:</b> ' + str(exc))
             return None

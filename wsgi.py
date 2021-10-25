@@ -78,20 +78,3 @@ def set_webhook():
 @app.route('/')
 def index():
     return '.'
-
-"""
-# storing objects in flask config
-app.config['TELEBOT'] = bot
-app.config['TELEBOT_LOGGER'] = logger
-app.config['BOT_CHEF'] = chef
-app.config['TELEBOT_URL'] = URL
-app.config['TELEGRAM_TOKEN'] = TOKEN
-
-with app.app_context():
-
-    logger.info('Registering blueprint...')
-
-    # getting and registering routes from blueprint
-    from ifaxbotcovid.bot import routes
-    app.register_blueprint(routes.main)
-"""
