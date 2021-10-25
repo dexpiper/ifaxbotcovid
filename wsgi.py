@@ -29,6 +29,15 @@ app.config['TELEBOT_URL'] = URL
 app.config['TELEGRAM_TOKEN'] = TOKEN
 
 
+with app.app_context():
+
+    logger.info('Registering blueprint...')
+
+    # getting and registering routes from blueprint
+    from ifaxbotcovid.bot import routes
+    app.register_blueprint(routes.main)
+
+
 #
 # MESSAGE HANDLERS
 #
@@ -56,12 +65,3 @@ def user_request(message):
         bot.send_message(message.chat.id, answer.ready_text)
         if message.text.endswith('йй'):
             bot.send_message(message.chat.id, answer.log)
-
-
-with app.app_context():
-
-    logger.info('Registering blueprint...')
-
-    # getting and registering routes from blueprint
-    from ifaxbotcovid.bot import routes
-    app.register_blueprint(routes.main)
