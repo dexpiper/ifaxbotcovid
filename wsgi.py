@@ -22,14 +22,6 @@ chef = factory.create_chef(
     time_gap=1.5
 )
 
-# storing objects in flask config
-app.config['TELEBOT'] = copy.deepcopy(bot)
-app.config['TELEBOT_LOGGER'] = logger
-app.config['BOT_CHEF'] = chef
-app.config['TELEBOT_URL'] = URL
-app.config['TELEGRAM_TOKEN'] = TOKEN
-
-
 #
 # MESSAGE HANDLERS
 #
@@ -58,6 +50,13 @@ def user_request(message):
         if message.text.endswith('йй'):
             bot.send_message(message.chat.id, answer.log)
 
+
+# storing objects in flask config
+app.config['TELEBOT'] = bot
+app.config['TELEBOT_LOGGER'] = logger
+app.config['BOT_CHEF'] = chef
+app.config['TELEBOT_URL'] = URL
+app.config['TELEGRAM_TOKEN'] = TOKEN
 
 with app.app_context():
 
