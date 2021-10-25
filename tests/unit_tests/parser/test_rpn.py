@@ -7,11 +7,14 @@ folder < 300 symbols long as valid input.
 from pathlib import Path
 from tests import instruments as inst
 
+
 class NoFileError(Exception):
     pass
 
+
 class NoExpectedVarTypeError(Exception):
     pass
+
 
 class TestRPN:
 
@@ -29,27 +32,28 @@ class TestRPN:
         assert len(TestRPN.good_rpn_files) > 0, 'No file to use in parser test'
 
     def test_parse_rpn_files(self):
-        
+
         if len(TestRPN.good_rpn_files) == 0:
             raise NoFileError('No good text files to check RPN-parser found')
-        
+
         for file in TestRPN.good_rpn_files:
             rawtext = inst.Instruments.get_text_from_file(file)
             text, log = inst.Instruments.parse_rpn(rawtext)
-            
+
             if type(text) == tuple:
                 raise NoExpectedVarTypeError
-            
+
             condition = (
                 'NO_VALUE' not in text
                 ) and (
                 'не удалось' not in log
                 )
-            
-            # 'corrupted' in file name indicates the text should not pass the condition
+
+            # 'corrupted' in file name indicates the text
+            # should not pass the condition
             if 'corrupted' in file.stem:
-                assert condition == False, \
-                f'Corrupted {file.name} did not raise an exception as expected'
+                err = f'Corrupted {file.name} should raise an exception'
+                assert condition is False, err
 
             # in other cases condition should evaluate as True
             else:

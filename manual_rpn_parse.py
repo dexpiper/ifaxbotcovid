@@ -1,4 +1,5 @@
-import pprint, pyperclip
+import pprint
+import pyperclip
 
 from ifaxbotcovid import rpn as RPN_parser
 

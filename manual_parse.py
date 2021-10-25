@@ -1,6 +1,7 @@
-import pprint, pyperclip
+import pprint
+import pyperclip
 
-from ifaxbotcovid import textparser as p
+from ifaxbotcovid.parser import textparser as p
 
 if pyperclip.paste is not None:
     rawtext = pyperclip.paste()

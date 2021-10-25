@@ -1,35 +1,36 @@
 import re
 
-import ifaxbotcovid.dateline as dateline
-import ifaxbotcovid.regioncounter as regioncounter
 import ifaxbotcovid.config.schemes as s
-import ifaxbotcovid.tables as tables
-import ifaxbotcovid.config.regex as regex
 import ifaxbotcovid.config.settings as settings
+import ifaxbotcovid.parser.dateline as dateline
+import ifaxbotcovid.parser.regexp.regex
+import ifaxbotcovid.parser.tables as tables
+
 
 class Parser():
 
-    def __init__(self, txt, mode='Normal', short=100):
+    def __init__(self, txt, mode='Normal', short=150):
 
         dl = dateline.Dateline()
         self.date_dateline, self.date_day = dl.dateline, dl.weekday
 
-        self.regexes = regex.regexes
-        
-        self.values = {'russia_new_cases' : 'NO_VALUE',
-          'russia_current_pace' : 'NO_VALUE',
-          'russia_new_deaths' : 'NO_VALUE',
-          'russia_new_recovered' : 'NO_VALUE',
-          'russia_total_cases' : 'NO_VALUE',
-          'moscow_new_cases' : 'NO_VALUE',
-          'moscow_new_deaths' : 'NO_VALUE',
-          'moscow_new_recovered' : 'NO_VALUE',
-          'date_dateline' : self.date_dateline,
-          'date_day' : self.date_day,
-          'golden_cite' : 'NO_VALUE',
-          'russia_total_deaths' : 'NO_VALUE',
-          'russia_total_recovered' : 'NO_VALUE',
-          'russia_active' : 'NO_VALUE',
+        self.regexes = ifaxbotcovid.parser.regexp.regex.regexes
+
+        self.values = {
+          'russia_new_cases': 'NO_VALUE',
+          'russia_current_pace': 'NO_VALUE',
+          'russia_new_deaths': 'NO_VALUE',
+          'russia_new_recovered': 'NO_VALUE',
+          'russia_total_cases': 'NO_VALUE',
+          'moscow_new_cases': 'NO_VALUE',
+          'moscow_new_deaths': 'NO_VALUE',
+          'moscow_new_recovered': 'NO_VALUE',
+          'date_dateline': self.date_dateline,
+          'date_day': self.date_day,
+          'golden_cite': 'NO_VALUE',
+          'russia_total_deaths': 'NO_VALUE',
+          'russia_total_recovered': 'NO_VALUE',
+          'russia_active': 'NO_VALUE',
           }
         self.log = []
         self.txt = txt
@@ -38,7 +39,7 @@ class Parser():
         if self.mode == 'Normal':
             self.flash_pattern = s.flash
             self.text_pattern = s.text
-    
+
     def NAcounter(self):
         i = 0
         for value in self.values.values():
@@ -46,15 +47,24 @@ class Parser():
                 i += 1
         return i
 
-    def del_space(self, txt): # функция удаляет лишние пробелы
+    def del_space(self, txt):
+        '''
+        Функция удаляет лишние пробелы
+        '''
         regex1 = re.compile(r'\s')
         txt = regex1.sub('', txt)
         return txt
 
-    def get_key(self, dct, v): # функция возвращает key в dict, зная value
+    def get_key(self, dct, v):
+        '''
+        Функция возвращает key в dict, зная value
+        '''
         return [key for key, value in dct.items() if value == v][0]
 
-    def choose_value(self, value): # функция сокращает tuple вида ('', 'цифра', '') до 'цифра'
+    def choose_value(self, value):
+        '''
+        Функция сокращает tuple вида ('', 'цифра', '') до 'цифра'
+        '''
         if type(value) == tuple:
             if len(value) > 1:
                 for item in value:
@@ -72,12 +82,18 @@ class Parser():
         cases = self.values['russia_total_cases']
         deaths = self.values['russia_total_deaths']
         recovered = self.values['russia_total_recovered']
-        if cases != 'NO_VALUE' and deaths != 'NO_VALUE' and recovered != 'NO_VALUE':
+        if (
+            cases != 'NO_VALUE' and
+            deaths != 'NO_VALUE' and
+            recovered != 'NO_VALUE'
+        ):
+
             active = int(cases) - (int(deaths) + int(recovered))
             self.values['russia_active'] = str(active)
         else:
-            self.log.append('Одна из трех переменных (russia_total_cases, russia_total_deaths, russia_total_recovered)  не заполнена, поэтому не удается рассчитать russia_active')
-        
+            self.log.append(
+'Одна из трех переменных (russia_total_cases, russia_total_deaths, russia_total_recovered)  не заполнена, поэтому не удается рассчитать russia_active'
+            )
 
     def find_values(self):
         self.log.append('         *** <b>Запускаю поиск переменных. Результаты:</b>\n')
@@ -93,10 +109,14 @@ class Parser():
                 else:
                     self.values[value_name] = raw_value
             except Exception:
-                self.log.append('<b>Переменная не заполнена: {}</b>'.format(value_name))
+                self.log.append(
+                    '<b>Переменная не заполнена: {}</b>'.format(value_name))
         self.compute_russia_active()
-        
-    def comma1000(self, n): # делит на 1000, меняет точку на запятую, округляет (1234 => 1,23)
+
+    def comma1000(self, n):
+        '''
+        Делит на 1000, меняет точку на запятую, округляет (1234 => 1,23)
+        '''
         try:
             n = round(int(n) / 1000, 2)
             regex1 = re.compile(r'\.')
@@ -105,26 +125,47 @@ class Parser():
             print(exc)
         return n
 
-    def comma(self, n): # меняет точку на запятую (1.234 => 1,234)
+    def comma(self, n):
+        '''
+        Меняет точку на запятую (1.234 => 1,234)
+        '''
         regex1 = re.compile(r'\.')
         n = regex1.sub(',', str(n))
         return n
 
-    def change_shape(self, arg, caps=False): # меняем '1098007' на строку '1 млн 098 тыс. 007' 
+    def change_shape(self, arg, caps=False):
+        '''
+        меняем '1098007' на строку '1 млн 098 тыс. 007'
+        '''
+        def zfill(x):
+            '''
+            '7' ==> '007'
+            '''
+            return str(x).zfill(3)
+
         try:
-            arg = int(arg) # подстраховываемся на случай, если на входе будет NO_VALUE
-            zfill = lambda x: str(x).zfill(3) # объявим безымянную функцию для '7' ==> '007'
+            # подстраховываемся на случай, если на входе будет NO_VALUE
+            arg = int(arg)
         except Exception:
-            self.log.append('Не удалось применить change_shape к %s' % str(arg))
+            self.log.append(
+                'Не удалось применить change_shape к %s' % str(arg)
+            )
             return str(arg)
+
         if arg > 1000000:
+
             millions = int(arg/1000000)
             thousands = int(arg/1000) - millions*1000
             hundreds = int(arg) - millions*1000000 - thousands*1000
+
             if caps:
-                return '%s МЛН %s ТЫС. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
+                return '%s МЛН %s ТЫС. %s' % (
+                    str(millions), zfill(str(thousands)), zfill(str(hundreds))
+                )
             else:
-                return '%s млн %s тыс. %s' % (str(millions), zfill(str(thousands)), zfill(str(hundreds)))
+                return '%s млн %s тыс. %s' % (
+                    str(millions), zfill(str(thousands)), zfill(str(hundreds))
+                )
         elif arg > 1000:
             thousands = int(arg/1000)
             hundreds = int(arg) - thousands*1000
@@ -146,20 +187,26 @@ class Parser():
                 if int(values_dct[var]) >= int(reference_value):
                     pass
                 else:
-                    message.append(f'Значение переменной {var} ({values_dct[var]}) меньше референсного значения')
+                    message.append(
+                        f'Значение переменной {var} ({values_dct[var]}) меньше референсного значения'
+                    )
             except Exception:
                 pass
         if len(message) >= 1:
             message.insert(0, '***   ВНИМАНИЕ!')
-            message.append('\n\n!!! Рекомендуется проверить отправленный боту текст.\n')
+            message.append(
+                '\n\n!!! Рекомендуется проверить отправленный боту текст.\n'
+            )
             return '\n'.join(message)
         else:
             return False
 
     def fill_the_gaps(self):
-        
+
         try:
-            flash = self.flash_pattern.format( # .format_map(VALUES) не используется, т.к. некоторые данные в словаре нужно предобработать 
+            # .format_map(VALUES) не используется,
+            # т.к. некоторые данные в словаре нужно предобработать
+            flash = self.flash_pattern.format(
                         russia_new_cases=self.change_shape(self.values['russia_new_cases'], caps=True),
                         russia_current_pace=self.values['russia_current_pace'],
                         russia_new_deaths=self.values['russia_new_deaths'],
@@ -172,7 +219,9 @@ class Parser():
                         date_day=self.values['date_day']
                         )
         except Exception as exc:
-            self.log.append('<b>Exception при попытке заполнить flash:</b> ' + str(exc))
+            self.log.append(
+                '<b>Exception при попытке заполнить flash:</b> ' + str(exc)
+            )
 
         # пробуем рассчитать таблицы по регионам
         try:
@@ -181,7 +230,7 @@ class Parser():
             self.log.append(tlog)
         except Exception as exc:
             self.log.append(exc)
-            
+
         try:
             maintext = self.text_pattern.format(
                         russia_new_cases=self.comma1000(self.values['russia_new_cases']), # меняем точку на запятую, делим на 1000, округляем
@@ -203,7 +252,9 @@ class Parser():
                         )
         except Exception as exc:
             maintext = '<b>Произошла ошибка, текст построить не удалось</b>'
-            self.log.append('<b>Ошибка при попытке заполнить maintext:</b> ' + str(exc))
+            self.log.append(
+                '<b>Ошибка при попытке заполнить maintext:</b> ' + str(exc)
+            )
 
         result = flash + maintext
 
@@ -214,12 +265,15 @@ class Parser():
         self.find_values()
         result = self.fill_the_gaps()
         if len(result) >= 4095:
-            for i in range(6): # увеличение self.short укорачивает таблицу новых случаев COVID-19 в регионах 
+            # увеличение self.short укорачивает
+            # таблицу новых случаев COVID-19 в регионах
+            for i in range(6):
                 self.log = []
                 self.short += 50
                 self.find_values()
                 result = self.fill_the_gaps()
-                if len(result) <= 4090: # лимит Telegram на длину одного сообщения
+                # лимит Telegram на длину одного сообщения
+                if len(result) <= 4090:
                     break
         check_message = self.fool_check(self.values)
         if check_message:
@@ -229,4 +283,4 @@ class Parser():
         if len(attention_message) > 1:
             return (attention_message, result)
         else:
-            return result
+            return ('', result)

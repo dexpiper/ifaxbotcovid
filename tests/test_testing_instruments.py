@@ -2,12 +2,13 @@
 Module asserts all the .txt files in tests/test_data folder could be read,
 parsed and would yeild some result without errors.
 
-- Any .txt file > 300 symbols long would be regarded as a valid textparser.py 
-text input. Files shorter then 300 reserved for rpn.py text input.
+- Any .txt file > 300 symbols long would be regarded as a valid
+textparser.py text input. Files shorter then 300 reserved for rpn.py
+text input.
 
 - 'Corrupted' in .txt file name would be considered as a 'bad file' and
-test would fail if the file had been processed without a 'NO_VALUE' in the 
-output.
+test would fail if the file had been processed without a 'NO_VALUE' in
+the output.
 
 '''
 
@@ -15,17 +16,21 @@ from pathlib import Path
 import pprint
 from tests import instruments as inst
 
+
 class NoFileError(Exception):
     pass
+
 
 class TestParser:
 
     data_folder = Path('tests/test_data/')
     files = []
     good_files = []
-    
+
     def test_collect_files(self):
-        TestParser.files = inst.Instruments.import_files(TestParser.data_folder)
+        TestParser.files = inst.Instruments.import_files(
+            TestParser.data_folder
+        )
         assert len(TestParser.files) > 0, 'No text files in tests/test_data'
 
     def test_check_files(self):
@@ -41,18 +46,20 @@ class TestParser:
         for file in TestParser.good_files:
             rawtext = inst.Instruments.get_text_from_file(file)
             text, log = inst.Instruments.parse(rawtext)
-            
-            # text var could be a tuple, in this case we take last item as a text
+
+            # text var could be a tuple,
+            # in this case we take last item as a text
             if type(text) == tuple:
                 text = text[-1]
-            
+
             condition = 'NO_VALUE' not in text
 
-            # 'corrupted' in file name indicates the text should not pass the condition
+            # 'corrupted' in file name indicates the text
+            # should not pass the condition
             if 'corrupted' in file.stem:
-                assert condition == False, \
-                f'Corrupted {file.name} did not raise an exception as expected'
-            
+                m = f'Corrupted {file.name} did not raise exception'
+                assert condition is False, m
+
             # regular file should pass the condition successfully
             else:
                 assert condition, f'File {file.name} did not pass the test'

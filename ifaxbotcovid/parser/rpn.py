@@ -14,22 +14,22 @@ log = rpn.log
 import re
 
 import ifaxbotcovid.config.schemes as schemes
-import ifaxbotcovid.dateline as dateline
+import ifaxbotcovid.parser.dateline as dateline
 
 class RPN:
 
     def __init__(self, rawtext):
         self.rawtext = rawtext
         self.regexes = {
-            'total_tests' : r'РФ проведен\w? более (\d+,?\d?) млн\.? тест\w+ на корона',
-            'recent_tests' : r'за сутки проведено (\d+) тыс. тестов на коронав',
-            'people_monitored' : r'под меднаблюдением оста\wтся (\d+\s\d+)\s{1,3}чел'
+            'total_tests': r'РФ проведен\w? более (\d+,?\d?) млн\.? тест\w+ на корона',
+            'recent_tests': r'за сутки проведено (\d+) тыс. тестов на коронав',
+            'people_monitored': r'под меднаблюдением оста\wтся (\d{0,3}\s?\d+\s\d+)\s{1,3}чел'
             }
 
         self.values = {
-            'total_tests' : 'NO_VALUE',
-            'recent_tests' : 'NO_VALUE',
-            'people_monitored' : 'NO_VALUE'
+            'total_tests': 'NO_VALUE',
+            'recent_tests': 'NO_VALUE',
+            'people_monitored': 'NO_VALUE'
             }
 
         self.log = []

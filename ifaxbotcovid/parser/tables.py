@@ -1,6 +1,6 @@
 import re
 
-import ifaxbotcovid.regioncounter as r
+import ifaxbotcovid.parser.regioncounter as r
 
 '''
 Скрипт находит таблицы новых случев и смертей в пресс-релизе оперштаба
@@ -12,31 +12,40 @@ import ifaxbotcovid.regioncounter as r
 '''
 
 # задаем regex'ы для парсинга двух таблиц в релизе
-REGEXES = dict(newcases=r'Распределение по субъектам(.*)В Российской Федерации нарастающ',
+REGEXES = dict(
+           newcases=r'Распределение по субъектам(.*)В Российской Федерации нарастающ',
            newdeaths='|'.join((
-               r'подтвержден\w?\s+\d{1,3}\s+летальн\w+ случа\w+(.*)За весь период по России умер',
-               r'подтвержден\w? {1,3}\d+ {1,3}смерт(.*)За весь период по России умер'))
+               r'подтвержден\w? {1,4}\d{0,3}\s?\d+ {1,4}летальн\w+ случа\w+(.*)За весь период по России умер',
+               r'подтвержден\w? {1,4}\d{0,3}\s?\d+ {1,4}смерт(.*)За весь период по России умер'))
               )
 
 # здесь будут храниться таблицы
 TABLES = dict(newcases='NO_TABLE', newdeaths='NO_TABLE')
 
-def get_key(dct, v): # функция возвращает key в dict, зная value
-	return [key for key, value in dct.items() if value == v][0]
 
-def choose_value(value): # функция сокращает tuple вида ('', 'цифра', '') до 'цифра'
-        if type(value) == tuple:
-            if len(value) > 1:
-                for item in value:
-                    if item == '':
-                        None
-                    else:
-                        return item
-                return ''
-            else:
-                return value[0]
+def get_key(dct, v):
+    '''
+    Возвращает key в dict, зная value
+    '''
+    return [key for key, value in dct.items() if value == v][0]
+
+
+def choose_value(value):
+    '''
+    Сокращает tuple вида ('', 'цифра', '') до 'цифра'
+    '''
+    if type(value) == tuple:
+        if len(value) > 1:
+            for item in value:
+                if item == '':
+                    None
+                else:
+                    return item
+            return ''
         else:
-            return value
+            return value[0]
+    else:
+        return value
 
 def find_tables(raw_txt):
     global TABLES
@@ -54,6 +63,7 @@ def find_tables(raw_txt):
         except Exception:
             print('Не удалось найти таблицу {}'.format(table_name))
     return
+
 
 def get_prepared(ready_table, table_type, short=100):
     if table_type == 'ready_cases':
@@ -75,6 +85,7 @@ def get_prepared(ready_table, table_type, short=100):
         cases_final = 'Согласно данным оперштаба о смертности, ' + joint_deaths
         return cases_final
 
+
 def process_tables(short=100):
     rc_ready_cases = r.RegionCounter(TABLES['newcases'], table_type='new_cases', short=short)
     rc_ready_deaths = r.RegionCounter(TABLES['newdeaths'], table_type='dead')
@@ -85,17 +96,22 @@ def process_tables(short=100):
     ready_deaths = get_prepared(ready_deaths, 'ready_deaths', short=short)
     return ready_cases, ready_deaths, log
 
-def tables(rawtext, short=100): # для вызова за пределами скрипта
+
+def tables(rawtext, short=100):
+    # для вызова за пределами скрипта
     try:
         find_tables(rawtext)
         ready_cases, ready_deaths, log = process_tables(short=short)
         return ready_cases, ready_deaths, log
     except Exception:
-            print('Не удалось обработать и добавить таблицы новых случаев и умерших')
+        print(
+            'Не удалось обработать и добавить таблицы новых случаев и умерших'
+        )
+
 
 # for testing usage only
 if __name__ == '__main__':
-    import pyperclip, pprint
+    import pyperclip
     if pyperclip.paste is not None:
         rawtext = pyperclip.paste()
         ready_cases, ready_deaths, log = tables(rawtext, short=150)

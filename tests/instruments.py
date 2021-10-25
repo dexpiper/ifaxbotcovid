@@ -3,24 +3,25 @@ A toolbox that contains common methods shared by the tests.
 
 '''
 
-from ifaxbotcovid import textparser
-from ifaxbotcovid import rpn
+from ifaxbotcovid.parser import textparser
+from ifaxbotcovid.parser import rpn
+
 
 class Instruments:
 
     @staticmethod
     def import_files(data_folder):
         files = [
-            e for e in data_folder.iterdir() if 
+            e for e in data_folder.iterdir() if
             (e.is_file() and (e.suffix == '.txt'))
             ]
         return files
-    
+
     @staticmethod
     def get_text_from_file(file):
         text = file.read_text()
         return text
-    
+
     @staticmethod
     def parse(rawtext, get_parser=False):
         parser = textparser.Parser(rawtext)
