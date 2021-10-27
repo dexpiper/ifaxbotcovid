@@ -6,8 +6,8 @@ Currently available at https://t.me/ifaxcovidbot.
 1. [Introduction](#introduction)
 2. [Technologies and libraries](#technologies-and-libraries)
 3. [Scope of functionalities](#scope-of-functionalities):
-* [Parser](#core:-parser)
-* [Intermediate logic](#intermediate-logic:-covidchef)
+* [Parser](#core-parser)
+* [Intermediate logic](#intermediate-logic-covidchef)
 4. [Examples of use](#examples-of-use)
 5. [Project structure](#structure)
 6. [Sources](#sources)
