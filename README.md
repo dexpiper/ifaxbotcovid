@@ -80,17 +80,17 @@ Bot also can parse a short piece of text provided daily by the press-office of t
 
 - Then puts variables into template (*ifaxbotcovid.config.settings*) and gives the user ready-to-use block of text in the answer message.
 
-This feature, realized in *ifaxbotcovid.rpn*, is pretty streightforward. All the regular expressions for it defined in the named module, not in *ifaxbotcovid.config.regex*.
+This feature, realized in *ifaxbotcovid.parser.rpn*, is pretty streightforward. All the regular expressions for it defined in the named module, not in *ifaxbotcovid.config.regex*.
 
 #### Intermediate logic: CovidChef
 
-Bot acts like a tiny web app written in Flask, getting new Telegram messages via webhook. When a message recieved, Flask routes redirects it to Telebot (pyTelegramBotAPI), who should call correspondent internal module and send ready template with all the mined data inside.
+Bot acts like a tiny web app written in Flask, getting new Telegram messages via webhook. When a message recieved, Flask redirects it to Telebot (pyTelegramBotAPI), who should call correspondent internal module and send ready template with all the mined data inside.
 
 Telegram <==> Flask <=> Telebot <=> Parser
 
-The idea behind the bot was its straightforwardness and simplicity: user just sends text and recieves ready material in bot answer - no commands, no files, no settings. This approach raised several problems:
+The idea behind the bot was its straightforwardness and simplicity: user just sends text and recieves ready material in answer - no commands, no files, no settings. This approach raised several problems:
 
-- Telegram tends to cut long messages sent to a bot into several pieces, but *ifaxbotcovid.parser.textparser* should get them all in one piece.
+- Telegram tends to cut in pieces long messages sent to a bot, but *ifaxbotcovid.parser.textparser* should get them all in one piece.
 - *ifaxbotcovid* should destinguish raw COVID-19 press-release from short COVID-test report provided by Russian agency RPN. Also bot should ignore any messages that are not press-releases and RPN reports.
 
 Firstly, COVID-19 official press releases in Russia were rather short - Telegram used to cut them in just in two pieces. But in the fall of 2021 the everyday pandemic statistics has become more detailed, thus I have to re-write previous code and add new structure element - an intermediate logic between Telebot and internal scripts:
@@ -116,7 +116,7 @@ Token for testing purposes could be defined in *ifaxbotcovid.config.token.TOKEN*
 
 **Templates**
 
-Templates are stored in *ifaxbotcovid/config/schemes*. Any other templates could be used instead of the default ones, placeholders for variables are defined in curly brackets:
+Templates are stored in *ifaxbotcovid.config.schemes*. Any other templates could be used instead of the default ones, placeholders for variables are defined in curly brackets:
 
 ```
 Some text here: {name_of_variable1}, {name_of_variable2}.
