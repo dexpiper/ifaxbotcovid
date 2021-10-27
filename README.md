@@ -6,8 +6,8 @@ Currently available at https://t.me/ifaxcovidbot.
 1. [Introduction](#introduction)
 2. [Technologies and libraries](#technologies-and-libraries)
 3. [Scope of functionalities](#scope-of-functionalities):
-* [Internal](#internal)
-* [External](#external)
+* [Parser](#core:-parser)
+* [Intermediate logic](#intermediate-logic:-covidchef)
 4. [Examples of use](#examples-of-use)
 5. [Project structure](#structure)
 6. [Sources](#sources)
@@ -17,7 +17,7 @@ Currently available at https://t.me/ifaxcovidbot.
 
 ### Introduction
 
-Simple Telegram bot. Helps journalists to fetch data from Russian daily COVID-19 official press-releases and write news materials on their basis. Initialized by journalist for fellow colleagues from Interfax News Group (Moscow) to save time when dealing with the daily routine. The bot neither stores data, nor pulls any from the web - it just parses the sent text and fills the pre-written form:
+Simple Telegram bot. Helps journalists to fetch data from Russian daily COVID-19 official press-releases and write news materials on their basis since October, 2020. Initialized by journalist for fellow colleagues from Interfax News Group (Moscow) to save time when dealing with the daily routine. The bot neither stores data, nor pulls any from the web - it just parses the sent text and fills the pre-written form:
 
 > user sends text *==>*
 > bot finds variables and organizes them *==>*
@@ -40,18 +40,16 @@ Project is created with:
 * pytest (tests), venv (virtual environment), Git (version control)
 
 * Key functionality (finding values in text) heavily depends on the *re* module from the Standard Library that provides regular expression operations.
-* *Collections.deque* (Standard Library) is applied to organize memory efficient and fast left-to-right queue. This queue saves last messages sent to the bot and the time of their arrival thus allowing to glue together long text that Telegram tend to cut apart.
-* *pyperclip* module is used to support manual tests, providing fast and easy way to paste large text directly from the clipboard (as input). Manual tests are implemented along with automated ones to ensure that output of the key modules *textparser.py* and *rpn.py* looks nice and clean.
 
 * The bot runs at *Heroku*, pipelined directly from the main brunch of this repository.
 
 ### Scope of functionalities
 
-#### Internal
+#### Core: Parser
 
-- User sends the press-release as a simple message to the bot. Every message long enough to be the COVID-19 release could be considered as a source text. First, bot glues two sequential messages (sent less then 1 sec from each other). Then it gives the raw text to the *ifaxcovidbot.textparser*, if defined key words are found.
+- The core functionality is provided by *ifaxbotcovid.parser.texparser* module.
 
-- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). All regexes are defined in [*ifaxbotcovid.config.regex* module](https://github.com/dexpiper/ifaxbotcovid/blob/5363811584cac8b1266953a2e9e23576c96a9d47/ifaxbotcovid/config/regex.py). Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
+- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). Regexes are defined in [*ifaxbotcovid.config.regex* module](https://github.com/dexpiper/ifaxbotcovid/blob/5363811584cac8b1266953a2e9e23576c96a9d47/ifaxbotcovid/config/regex.py). Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
 
 **Variables to find**:
    - COVID cases ----------- \
@@ -69,7 +67,7 @@ Project is created with:
    - Re-written tables about other regions statistics
 
 - All the found variables and ready region blocks fit into patterns in the *ifaxcovidbot.config.schemes*. In the outcome, bot gets a ready-to-use news material and sends it to the user.
-- If the message with the raw text had a 'йй' symbols in the beginning or in the end, bot also provides the user with a log of the operations performed. Log is meant to be sent in a separate message.
+- If the message with the raw text had a 'йй' symbols in the end, bot also provides the user with a log of the operations performed. Log is meant to be sent in a separate message.
 - Bot programmed to warn user if some of the variables are suspiciously small (defined in *ifaxcovidbot.config.settings*). Also user will get a notice if some of the variables haven't been found (a gap would be filled with a *NO_VALUE* dummy).
 
 **Addition feature**
@@ -84,18 +82,28 @@ Bot also can parse a short piece of text provided daily by the press-office of t
 
 This feature, realized in *ifaxbotcovid.rpn*, is pretty streightforward. All the regular expressions for it defined in the named module, not in *ifaxbotcovid.config.regex*.
 
-#### External
+#### Intermediate logic: CovidChef
 
-Bot acts like a tiny web app, getting new Telegram messages via webhook:
+Bot acts like a tiny web app written in Flask, getting new Telegram messages via webhook. When a message recieved, Flask routes redirects it to Telebot (pyTelegramBotAPI), who should call correspondent internal module and send ready template with all the mined data inside.
 
-Telegram <======> *ifaxbotcovid.covidbot* <=> internal scripts
+Telegram <==> Flask <=> Telebot <=> Parser
 
-When a message recieved, app redirectes it to a correspondent handler (*telebot* lib is used). 
+The idea behind the bot was its straightforwardness and simplicity: user just sends text and recieves ready material in bot answer - no commands, no files, no settings. This approach raised several problems:
 
-- Handler for plain text designed to store the message and time of its arrival in a global variable - *deque.deque* object and call a *gluer* function to decide what to do next. 
-- The *gluer* function glues together 2 sequentional messages if *time2* - *time1* is less then 1 sec and return text to further processing. This trick is needed since *len(text)* is > 6000, and Telegram sends long messages cut in pieces approx. 3000 symbols long. 
-- Then long text get checked for key words (*ifaxbotcovid.config.settings*) and goes to *ifaxbotcovid.textparser* (*textparser.Parser* obeject does all the work, calling other modules). If "Роспотребнадзор" keyword is found in the beggining of a short message, it flies to *ifaxbotcovid.rpn*.
-- Internal modules cook the answer, then bot post it along with warnings and logs (if requested) back to Telegram with respect of *chat_id* of the user.
+- Telegram tends to cut long messages sent to a bot into several pieces, but *ifaxbotcovid.parser.textparser* should get them all in one piece.
+- *ifaxbotcovid* should destinguish raw COVID-19 press-release from short COVID-test report provided by Russian agency RPN. Also bot should ignore any messages that are not press-releases and RPN reports.
+
+Firstly, COVID-19 official press releases in Russia were rather short - Telegram used to cut them in just in two pieces. But in the fall of 2021 the everyday pandemic statistics has become more detailed, thus I have to re-write previous code and add new structure element - an intermediate logic between Telebot and internal scripts:
+
+Telegram <======> Flask <=> Telebot <=> CovidChef <=> Parser
+
+CovidChef is organized as a custom Python class, initialized along with the Flask and Telebot. In general:
+
+1) Telebot gives any recieved message to the Chef
+2) Chef does its magic
+3) Telebot sends Chef's answers back to user
+
+Under the bonnet Chef stores messages in fast temporary MessageStorage (using deque), glues sequential messages from single user with certain context (defined in *ifaxbotcovid.config*) together and calls *ifaxcovidvbot.parser.textparser* when glued text seems completed and ended. The Chef's answer is organized in separate class with special flag. This flag signals when the last message were properly cooked to send ready answer to user. Also Chef rapidly cooks short RPN report when recieved one, calling *ifaxbotcovid.parser.rpn*.
 
 **Environment variables**
 
@@ -188,20 +196,28 @@ Outcome with default template:
 
 ```
 /
-covidbot.py                 - *handles telegram messages and calls textparser.py or rpn.py*
+wsgi.py                    - *Flask routes, Telebot handlers, Chef instance creation*
 manual_parse.py            - *manual testing for textparser.py*
 manual_rpn_parse.py        - *manual testing for rpn.py*
 
   /ifaxbotcovid
+    
+    /bot
+        logic.py               - *CovidChef to call parsers and to bring answers*
+        helpers.py             - *CovidChef helpers*
+        factory.py             - *Flask, Telebot and Chef starts here*
 
-    textparser.py          - *chief module for parsing the big release, all things here*
-    rpn.py                 - *module for parsing short RPN messages*
-    ...
+    /parser
+
+        textparser.py          - *chief module for parsing the big release*
+        rpn.py                 - *module for parsing short RPN report*
+        ...
+
     /config
-        regex.py           - *regular expressions used by the 'textparser.py'*
-        schemes.py         - *templates*
-        settings.py        - *admins, some base vars and key words defined here*
-        startmessage.py    - *message to answer /start command*
+        regex.py               - *regular expressions used by the 'textparser.py'*
+        schemes.py             - *templates*
+        settings.py            - *admins, some base vars and key words defined here*
+        startmessage.py        - *message to answer /start command*
 
   /tests
     ...
