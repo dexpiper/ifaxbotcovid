@@ -21,15 +21,8 @@ import ifaxbotcovid.parser.regioncounter as r
 from ifaxbotcovid.parser.regexp import table_detect
 
 # задаем regex'ы для парсинга двух таблиц в релизе
-<<<<<<< HEAD:ifaxbotcovid/tables.py
-REGEXES = dict(newcases=r'Распределение по субъектам(.*)В Российской Федерации нарастающ',
-           newdeaths='|'.join((
-               r'подтвержден\w?\s+\d{1,3}\s+летальн\w+ случа\w+(.*)За весь период по России умер',
-               r'подтвержден\w? {1,3}\d+\s\d+ {1,3}смерт(.*)За весь период по России умер'))
-              )
-=======
+
 REGEXES = table_detect.detector_dict
->>>>>>> Refactoring:ifaxbotcovid/parser/tables.py
 
 # здесь будут храниться таблицы
 TABLES = dict(newcases='NO_TABLE', newdeaths='NO_TABLE')
