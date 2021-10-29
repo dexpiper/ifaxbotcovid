@@ -1,11 +1,11 @@
-#
-# Contains starting message for bot users, HTML-form
-#
+import logging
+
 
 def startmsg():
     try:
-        with open('messagestart.txt', 'r') as file:
+        with open('ifaxbotcovid/config/messagestart.txt', 'r') as file:
             s = file.read()
     except FileNotFoundError:
+        logging.warning('File for startmessage has not been found')
         s = 'Welcome to ifaxbotcovid!'
     return s

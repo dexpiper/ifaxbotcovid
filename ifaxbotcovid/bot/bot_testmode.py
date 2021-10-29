@@ -1,8 +1,7 @@
 import logging
 from logging.config import fileConfig
 
-import ifaxbotcovid.config.settings as settings
-import ifaxbotcovid.config.startmessage as startmessage
+from ifaxbotcovid.config import settings, startmessage
 from ifaxbotcovid.bot.factory import create_bot, create_chef
 
 # logging settings
@@ -36,7 +35,8 @@ def answer_start(message):
     '''
     Bot sends welcome message
     '''
-    bot.send_message(message.chat.id, startmessage.startmsg, parse_mode='HTML')
+    bot.send_message(message.chat.id, startmessage.startmsg(),
+                     parse_mode='HTML')
     botlogger.info(
         'User %s issued "start" command' % message.from_user.username)
     user = message.from_user.username
