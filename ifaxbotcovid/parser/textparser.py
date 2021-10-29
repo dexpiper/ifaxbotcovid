@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 
 import ifaxbotcovid.config.schemes as s
 import ifaxbotcovid.config.settings as settings

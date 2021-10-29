@@ -14,12 +14,11 @@ Russian:
 синтаксические дополнения, чтобы текст выглядел "живым".
 '''
 
-import re
 import random
+import re
 
+from ifaxbotcovid.parser.lib import addition_lib, regions
 from ifaxbotcovid.parser.regexp import table_regex
-from ifaxbotcovid.parser.lib import addition_lib
-from ifaxbotcovid.parser.lib import regions
 
 
 class RegionCounter():

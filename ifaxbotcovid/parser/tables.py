@@ -20,7 +20,6 @@ import re
 import ifaxbotcovid.parser.regioncounter as r
 from ifaxbotcovid.parser.regexp import table_detect
 
-
 # задаем regex'ы для парсинга двух таблиц в релизе
 REGEXES = table_detect.detector_dict
 

@@ -1,8 +1,8 @@
-from typing import NamedTuple
-import time
 import logging
+import time
+from typing import NamedTuple
 
-from ifaxbotcovid.bot.helpers import MessageStorage, LogConstructor
+from ifaxbotcovid.bot.helpers import LogConstructor, MessageStorage
 from ifaxbotcovid.parser.rpn import RPN
 from ifaxbotcovid.parser.textparser import Parser
 

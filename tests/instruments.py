@@ -3,8 +3,7 @@ A toolbox that contains common methods shared by the tests.
 
 '''
 
-from ifaxbotcovid.parser import textparser
-from ifaxbotcovid.parser import rpn
+from ifaxbotcovid.parser import rpn, textparser
 
 
 class Instruments:

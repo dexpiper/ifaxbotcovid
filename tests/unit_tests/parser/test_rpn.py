@@ -5,6 +5,7 @@ folder < 300 symbols long as valid input.
 '''
 
 from pathlib import Path
+
 from tests import instruments as inst
 
 

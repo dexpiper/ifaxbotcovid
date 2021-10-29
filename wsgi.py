@@ -1,13 +1,12 @@
-import os
 import logging
+import os
 from logging.config import fileConfig
 
-from flask import request
 import telebot
+from flask import request
 
 from ifaxbotcovid.bot import factory
-from ifaxbotcovid.config import settings
-from ifaxbotcovid.config import startmessage
+from ifaxbotcovid.config import settings, startmessage
 
 # logging settings
 fileConfig('ifaxbotcovid/config/logging.ini')

@@ -1,10 +1,9 @@
 import logging
 from logging.config import fileConfig
 
-from ifaxbotcovid.bot.factory import create_bot, create_chef
-import ifaxbotcovid.config.startmessage as startmessage
 import ifaxbotcovid.config.settings as settings
-
+import ifaxbotcovid.config.startmessage as startmessage
+from ifaxbotcovid.bot.factory import create_bot, create_chef
 
 # logging settings
 fileConfig('ifaxbotcovid/config/logging.ini')

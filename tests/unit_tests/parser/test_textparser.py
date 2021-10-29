@@ -2,13 +2,11 @@
 Tests textparser.py functionality along with its dependencies
 '''
 
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
-
-from ifaxbotcovid.parser import textparser
-from ifaxbotcovid.parser import tables
+from ifaxbotcovid.parser import tables, textparser
 from tests import instruments as inst
 
 

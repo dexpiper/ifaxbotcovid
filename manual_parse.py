@@ -1,7 +1,7 @@
 import logging
+import pprint
 from logging.config import fileConfig
 
-import pprint
 import pyperclip
 
 from ifaxbotcovid.parser import textparser as p

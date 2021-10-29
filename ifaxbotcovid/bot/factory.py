@@ -1,7 +1,7 @@
 import logging
 
-from flask import Flask
 import telebot
+from flask import Flask
 
 from ifaxbotcovid.bot.logic import CovidChef
 

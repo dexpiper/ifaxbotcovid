@@ -12,8 +12,9 @@ the output.
 
 '''
 
-from pathlib import Path
 import pprint
+from pathlib import Path
+
 from tests import instruments as inst
 
 
