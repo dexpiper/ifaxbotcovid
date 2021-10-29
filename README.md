@@ -206,6 +206,7 @@ manual_rpn_parse.py        - *manual testing for rpn.py*
         logic.py               - *CovidChef to call parsers and to bring answers*
         helpers.py             - *CovidChef helpers*
         factory.py             - *Flask, Telebot and Chef starts here*
+        ...
 
     /parser
 
@@ -213,15 +214,25 @@ manual_rpn_parse.py        - *manual testing for rpn.py*
         rpn.py                 - *module for parsing short RPN report*
         ...
 
+        /lib
+        /regexp
+            
+            regex.py               - *regular expressions used by the 'textparser.py'*
+            ...
+
     /config
-        regex.py               - *regular expressions used by the 'textparser.py'*
         schemes.py             - *templates*
         settings.py            - *admins, some base vars and key words defined here*
-        startmessage.py        - *message to answer /start command*
+        messagestart.txt       - *message to answer /start command*
+        logging.ini            - *logging settings*
 
   /tests
     ...
     /unit_tests
+
+        /bot
+        /parser
+    
     /test_data
 
         sample_xxx.txt     - *input for test, .txt files > 300 considered as a textparser.py input, less then 300 - as a rpn.py input. Any "sample_xxx.txt" content can be used as a valid input for telegram bot*
