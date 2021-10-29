@@ -30,7 +30,8 @@ chef = factory.create_chef(
     check_phrases=settings.key_words,
     stop_phrase=settings.stop_phrase,
     maxlen=3,
-    time_gap=2
+    time_gap=2,
+    logger=botlogger
 )
 
 
