@@ -1,28 +1,21 @@
 """
 Contains a dct with regular expressions (regexes). It is imported by
 the parser.py script to find vars in the raw text of the press-release.
-
 Each key-value pair represents:
 {
     # regex description
     regex_name : <raw regex> # raw string with future regular expression
 }
-
 Actual regular expression would be build by:
-
 (import re)
 the_regex = re.compile(<raw regex>, re.DOTALL)
 value = the_regex.findall[0]
-
 The '|' symbol is used to present a number of distinct variants of 
 a regex:
-
 <variant 1> | <variant 2> | <variant 3>
-
 In this case output of <<the_regex.findall[0]>> would be a tuple. So
 parser.py has a <<choose_value>> static method to deal with 
 ('', '<value>', '') tuple to fetch a <value> from it.
-
 RUSSIAN SUMMARY:
 В файле приводится словарь с регулярными выражениями. С его помощью скрипт
 parser.py ищет нужные переменные в тексте релиза.
@@ -83,17 +76,30 @@ regexes = {
           'moscow_new_deaths' :
 
           '|'.join((
+<<<<<<< HEAD:ifaxbotcovid/config/regex.py
           r'За последние сутки умер\w* {1,3}\d+\s?\d+ {1,3}человек.*Москва\s+\W?\s?(\d+).*Умер\w* за весь период',
           r'Умер\w* за последние сутки {1,3}\d+\s?\d+ {1,3}человек.*Москва\s+\W?\s?(\d+).*За весь период умерл',
           r'Умер\w* за последние сутки {1,3}\d+\s?\d+ {1,3}человек.*Москва\s+\W?\s?(\d+).*Умер\w* за весь период',
           r'За последние сутки умер\w* {1,3}\d+\s?\d+ {1,3}человек.*Москва\s+\W?\s?(\d+).*За весь период умерл',
           r'.*'.join((
                     r'За последние сутки подтвержден\w+ {1,3}\d+\s?\d+ {1,3}летальн\w+ случа',
+=======
+          r'За последние сутки умер\w* {1,3}\d+\s?\d{0,3} {0,3}человек.*Москва\s+\W?\s?(\d+).*Умер\w* за весь период',
+          r'Умер\w* за последние сутки {1,3}\d+\s?\d{0,3} {0,3}человек.*Москва\s+\W?\s?(\d+).*За весь период умерл',
+          r'Умер\w* за последние сутки {1,3}\d+\s?\d{0,3} {0,3}человек.*Москва\s+\W?\s?(\d+).*Умер\w* за весь период',
+          r'За последние сутки умер\w* {1,3}\d+\s?\d{0,3} {0,3}человек.*Москва\s+\W?\s?(\d+).*За весь период умерл',
+          r'.*'.join((
+                    r'За последние сутки подтвержден\w+ {1,3}\d+\s?\d{0,3} {0,3}летальн\w+ случа',
+>>>>>>> Refactoring:ifaxbotcovid/parser/regexp/regex.py
                     r'Москва\s+\W?\s?(\d+)',
                     r'За весь период по России умер'
                     )),
           r'.*'.join((
+<<<<<<< HEAD:ifaxbotcovid/config/regex.py
                     r'За последние сутки подтвержден\w? {1,3}\d+\s?\d+ {1,3}смерт',
+=======
+                    r'За последние сутки подтвержден\w? {1,3}\d+\s?\d{0,3} {0,3}смерт',
+>>>>>>> Refactoring:ifaxbotcovid/parser/regexp/regex.py
                     r'Москва\s+\W?\s?(\d+)',
                     r'За весь период по России умер'
                     ))
@@ -123,7 +129,7 @@ regexes = {
           # "золотая цитата" 
           'golden_cite' :
         
-          r'(За последние сутки в.*без клинических проявлений)',
+          r'(За последние сутки в.*без клинических проявлений).\s',
            
           # общее число смертей от COVID-19 в России за все время
           'russia_total_deaths' :

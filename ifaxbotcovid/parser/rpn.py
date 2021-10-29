@@ -9,27 +9,30 @@ rpn = RPN(rawtext)
 text = rpn.construct()
 log = rpn.log
 
+Russian:
+Переписывает короткий кусок текста - сообщение пресс-службы Роспотребнадзора
+о ситуации с тестированием в России - в готовый абзац для новости.
+
 '''
 
 import re
 
 import ifaxbotcovid.config.schemes as schemes
-import ifaxbotcovid.dateline as dateline
+import ifaxbotcovid.parser.dateline as dateline
+from ifaxbotcovid.parser.utils import ParserHelpers
+from ifaxbotcovid.parser.regexp import rpn_regex
+
 
 class RPN:
 
     def __init__(self, rawtext):
         self.rawtext = rawtext
-        self.regexes = {
-            'total_tests' : r'РФ проведен\w? более (\d+,?\d?) млн\.? тест\w+ на корона',
-            'recent_tests' : r'за сутки проведено (\d+) тыс. тестов на коронав',
-            'people_monitored' : r'под меднаблюдением оста\wтся (\d+\s\d+)\s{1,3}чел'
-            }
+        self.regexes = rpn_regex.rpn_regex
 
         self.values = {
-            'total_tests' : 'NO_VALUE',
-            'recent_tests' : 'NO_VALUE',
-            'people_monitored' : 'NO_VALUE'
+            'total_tests': 'NO_VALUE',
+            'recent_tests': 'NO_VALUE',
+            'people_monitored': 'NO_VALUE'
             }
 
         self.log = []
@@ -38,20 +41,20 @@ class RPN:
     def del_space(txt):
         '''
         Deleting unwanted spaces in given string
-        '''      
+        '''
         regex1 = re.compile(r'\s')
         txt = regex1.sub('', txt)
         return txt
 
     @staticmethod
-    def get_key(dct, v):  
+    def get_key(dct, v):
         '''
         Method returns key of given dict by known value
-        '''	
+        '''
         return [key for key, value in dct.items() if value == v][0]
-    
+
     @staticmethod
-    def choose_value(value): 
+    def choose_value(value):
         '''
         Method cuts tuple like ('', 'number', '') to 'number'
         '''
@@ -68,16 +71,25 @@ class RPN:
         else:
             return value
 
-    def find_values(self): 
-        
+    def find_values(self):
+
         '''
-        Method fetches values from the given rawtext 
-        {'total_tests' : '...', ''recent_tests' : '...', 'people_monitored' : '...'}
+        Method fetches values from the given rawtext
+        {
+            'total_tests': '...',
+            'recent_tests': '...',
+            'people_monitored': '...'
+        }
         '''
 
         self.log.append(
-            '\n         *** Запускаю поиск переменных для пресс-релиза РПН. Результаты:\n'
-            )
+            ' '.join((
+                '\n',
+                ' '*7,  # seven spaces
+                '*** Запускаю поиск переменных для пресс-релиза РПН',
+                'Результаты:\n'
+            ))
+        )
         for regex in self.regexes.values():
             value_name = self.get_key(self.regexes, regex)
             try:
@@ -90,9 +102,9 @@ class RPN:
                 if str(exc) == 'list index out of range':
                     exc = 'Не удалось найти значение'
                 self.log.append(
-                    'Переменная не заполнена: {} ({})'.format(value_name, exc)
-                    )
-    
+                    f'Переменная не заполнена: {value_name} ({exc})'
+                )
+
     def construct(self):
         '''
         Main call as a function
@@ -109,9 +121,13 @@ class RPN:
                 date_day=date_day,
                 total_tests=total_tests,
                 recent_tests=recent_tests,
-                people_monitored=people_monitored
+                people_monitored=ParserHelpers.change_shape(
+                    people_monitored
                 )
+            )
         except Exception as exc:
-            self.log.append('<b>Exception при попытке заполнить rpn:</b> ' + str(exc))
+            self.log.append(
+                f'<b>Exception при попытке заполнить rpn:</b> {str(exc)}'
+            )
             return None
         return result

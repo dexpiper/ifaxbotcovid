@@ -1,2 +1,8 @@
-logfile.log
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+botlog.log
 manual_table_parse.py
+manual_rpn_parse.py

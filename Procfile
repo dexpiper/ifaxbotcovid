@@ -1,1 +1,1 @@
-web: gunicorn covidbot:app
+web: gunicorn wsgi:app
