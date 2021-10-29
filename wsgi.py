@@ -42,7 +42,7 @@ def answer_start(message):
     '''
     Bot sends welcome message
     '''
-    bot.send_message(message.chat.id, startmessage.s, parse_mode='HTML')
+    bot.send_message(message.chat.id, startmessage.startmsg, parse_mode='HTML')
     botlogger.info(
         'User %s issued "start" command' % message.from_user.username)
     user = message.from_user.username
