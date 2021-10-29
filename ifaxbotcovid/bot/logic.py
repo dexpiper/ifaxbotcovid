@@ -1,5 +1,6 @@
 from typing import NamedTuple
 import time
+import logging
 
 from ifaxbotcovid.bot.helpers import MessageStorage, LogConstructor
 from ifaxbotcovid.parser.rpn import RPN
@@ -52,7 +53,10 @@ class CovidChef():
                  maxlen: int = 3,
                  check_phrases: list = [],
                  stop_phrase: str = '',
-                 time_gap: float = 1.5):
+                 time_gap: float = 1.5,
+                 # optional logger instance
+                 logger=logging.getLogger(__name__)
+                 ):
 
         storage_kwargs = dict(
             maxlen=maxlen,
@@ -62,6 +66,7 @@ class CovidChef():
         )
         self.storage = MessageStorage(**storage_kwargs)
         self.short_procedure_key = short_procedure_key
+        self.logger = logger
 
     def process_new_message(self,
                             message: object,
@@ -74,7 +79,9 @@ class CovidChef():
         If message should be skipped, message is passed to
         empty_answer handler.
         '''
+        self.logger.debug('New message came')
         if self.short_procedure_key in message.text:
+            self.logger.debug('Message recognized as RPN report')
             return self.cook_short_answer(message)
         else:
             self.storage.append(
@@ -84,9 +91,11 @@ class CovidChef():
             # append previous messages
             joint_message = self.storage.get_joint()
             if joint_message.valid:
+                self.logger.debug('Message marked as valid')
                 self.storage.drop()
                 return self.cook_long_answer(joint_message, message)
             else:
+                self.logger.debug('Message skipped')
                 return self.cook_empty_answer(message)
 
     def cook_short_answer(self,
@@ -95,12 +104,11 @@ class CovidChef():
         RPN_constructor = RPN(raw_text)
         ready_text = RPN_constructor.construct()
         log = LogConstructor.join_log_message(RPN_constructor.log)
+        self.logger.debug('Short answer cooked')
         return CovidChef.Answer(
             warnmessage='', ready_text=ready_text, log=log,
             message_object=message
         )
-        # bot.send_message(msg.chat.id, text)
-        # bot.send_message(msg.chat.id, log, parse_mode='HTML')
 
     def cook_long_answer(self,
                          joint_message,
@@ -111,9 +119,10 @@ class CovidChef():
         and place into template to make a ready news text.
         '''
         raw_text = joint_message.text
-        news_parser = Parser(raw_text)
+        news_parser = Parser(raw_text, logger=self.logger)
         warn_message, ready_text = news_parser()
         log = LogConstructor.join_log_message(news_parser.log)
+        self.logger.debug('Long answer cooked')
         return CovidChef.Answer(
             warn_message, ready_text, log, message)
 
@@ -122,6 +131,7 @@ class CovidChef():
         '''
         An empty answer. <Flag> parameter set to False.
         '''
+        self.logger.debug('Empty answer returned')
         return CovidChef.Answer('', '', '',
                                 message_object=message,
                                 flag=False)

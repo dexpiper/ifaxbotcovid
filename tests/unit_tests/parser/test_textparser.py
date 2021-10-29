@@ -3,105 +3,57 @@ Tests textparser.py functionality along with its dependencies
 '''
 
 from pathlib import Path
+from dataclasses import dataclass
+
+import pytest
 
 from ifaxbotcovid.parser import textparser
 from ifaxbotcovid.parser import tables
 from tests import instruments as inst
 
 
+@pytest.fixture
+def samples():
+
+    @dataclass
+    class Sample:
+        # sample vars for testing
+        sample = 'Тридцать тысяч обезьян'
+        sample2 = ' Foo bar  '
+        sample_dict = {'Foo': 'bar', 'Hello': 'world!'}
+        big_sample = inst.Instruments.get_text_from_file(
+            Path('tests/test_data/sample_text.txt')
+            )
+
+    return Sample
+
+
+@pytest.fixture
+def parser(samples):
+    return textparser.Parser(samples.sample)
+
+
 class TestUnitParser:
 
-    # sample vars for testing
-    sample = 'Тридцать тысяч обезьян'
-    sample2 = ' Foo bar  '
-    sample_dict = {'Foo': 'bar', 'Hello': 'world!'}
-    sample_tuple = ('', 'Foo', '')
-    sample_tuple2 = ('', 'Foo', '', 'bar')
-    sample_tuple3 = ('Foo')
-    big_sample = inst.Instruments.get_text_from_file(
-        Path('tests/test_data/sample_text.txt')
-        )
-
-    parser = textparser.Parser(sample)
-
-    def test_NAcounter(self):
-        count = TestUnitParser.parser.NAcounter()
+    def test_NAcounter(self, parser):
+        count = parser.NAcounter()
         assert count == 12, "Function doesn't work correctly"
 
-    def test_del_space(self):
-        result = TestUnitParser.parser.del_space(TestUnitParser.sample2)
+    def test_del_space(self, parser, samples):
+        result = parser.del_space(samples.sample2)
         assert result == 'Foobar'
 
-    def test_get_key(self):
-        result = TestUnitParser.parser.get_key(
-            TestUnitParser.sample_dict, 'world!'
+    def test_get_key(self, parser, samples):
+        result = parser.get_key(
+            samples.sample_dict, 'world!'
         )
         assert result == 'Hello'
 
-    class TestChooseValue:
-
-        def test_choose_value1(self):
-            result = TestUnitParser.parser.choose_value(
-                TestUnitParser.sample_tuple
-            )
-            assert result == 'Foo'
-
-        def test_choose_value2(self):
-            result = TestUnitParser.parser.choose_value(
-                TestUnitParser.sample_tuple2
-            )
-            assert result == 'Foo'
-
-        def test_choose_value3(self):
-            result = TestUnitParser.parser.choose_value(
-                TestUnitParser.sample_tuple3
-            )
-            assert result == 'Foo'
-
-        def test_choose_value4(self):
-            result = TestUnitParser.parser.choose_value(
-                TestUnitParser.sample
-            )
-            assert result == TestUnitParser.sample
-        # class ends here
-
-    class TestComma:
-
-        def test_comma1000(self):
-            result = TestUnitParser.parser.comma1000('123456')
-            assert result == '123,46'
-
-        def test_comma(self):
-            result = TestUnitParser.parser.comma('1234.56')
-            assert result == '1234,56'
-
-    class TestChangeShape:
-
-        def test_change_shape(self):
-            result = TestUnitParser.parser.change_shape('1098007')
-            assert result == '1 млн 098 тыс. 007'
-
-        def test_change_shape2(self):
-            result = TestUnitParser.parser.change_shape('10376')
-            assert result == '10 тыс. 376'
-
-        def test_change_shape3(self):
-            result = TestUnitParser.parser.change_shape('376')
-            assert result == '376'
-
-        def test_change_shape_caps(self):
-            result = TestUnitParser.parser.change_shape('1091006', caps=True)
-            assert result == '1 МЛН 091 ТЫС. 006'
-
-        def test_change_shape_caps2(self):
-            result = TestUnitParser.parser.change_shape('10379', caps=True)
-            assert result == '10 ТЫС. 379'
-
     class TestTableDetection:
 
-        def test_find_tables(self):
+        def test_find_tables(self, samples):
             ready_cases, ready_deaths, tlog = tables.tables(
-                TestUnitParser.big_sample,
+                samples.big_sample,
                 short=100
                 )
             condition1 = ready_cases.startswith(
@@ -120,9 +72,9 @@ class TestUnitParser:
 
     class TestVars:
 
-        def test_vars_finding(self):
-            text, log, parser = inst.Instruments.parse(
-                TestUnitParser.big_sample,
+        def test_vars_finding(self, samples):
+            _, _, parser = inst.Instruments.parse(
+                samples.big_sample,
                 get_parser=True  # getting the parser object for analysis
                 )
             values = parser.values
@@ -147,7 +99,7 @@ class TestUnitParser:
             assert errors == 0,\
                 f'Did not found values. Failed keys: {str(failed_keys)}'
 
-        def test_fool_check(self):
+        def test_fool_check(self, parser):
 
             good_dct = {
                 'russia_new_cases': '7920',
@@ -171,8 +123,8 @@ class TestUnitParser:
             bad_dct['russia_total_deaths'] = '116560'
             bad_dct['russia_total_recovered'] = '72226'
 
-            condition1 = TestUnitParser.parser.fool_check(good_dct)
-            condition2 = TestUnitParser.parser.fool_check(bad_dct)
+            condition1 = parser.fool_check(good_dct)
+            condition2 = parser.fool_check(bad_dct)
 
             assert not condition1, "Mistake found where shouldn't be one"
             assert condition2, "Failed to detect error"

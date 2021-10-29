@@ -84,11 +84,11 @@ This feature, realized in *ifaxbotcovid.parser.rpn*, is pretty streightforward. 
 
 #### Intermediate logic: CovidChef
 
-Bot acts like a tiny web app written in Flask, getting new Telegram messages via webhook. When a message recieved, Flask redirects it to Telebot (pyTelegramBotAPI), who should call correspondent internal module and send ready template with all the mined data inside.
+Bot acts like a tiny web app written in Flask, getting new Telegram messages via webhook. When message came, Flask redirects it to Telebot (pyTelegramBotAPI), who should call correspondent internal module and send ready template with all the mined data inside.
 
 Telegram <==> Flask <=> Telebot <=> Parser
 
-The idea behind the bot was its straightforwardness and simplicity: user just sends text and recieves ready material in answer - no commands, no files, no settings. This approach raised several problems:
+The ideas behind the bot was straightforwardness and simplicity: user sends text and recieves ready material in answer - no commands, no files, no settings. This 'just-send-and-recieve' approach raised two problems:
 
 - Telegram tends to cut in pieces long messages sent to a bot, but *ifaxbotcovid.parser.textparser* should get them all in one piece.
 - *ifaxbotcovid* should destinguish raw COVID-19 press-release from short COVID-test report provided by Russian agency RPN. Also bot should ignore any messages that are not press-releases and RPN reports.
@@ -103,7 +103,7 @@ CovidChef is organized as a custom Python class, initialized along with the Flas
 2) Chef does its magic
 3) Telebot sends Chef's answers back to user
 
-Under the bonnet Chef stores messages in fast temporary MessageStorage (using deque), glues sequential messages from single user with certain context (defined in *ifaxbotcovid.config*) together and calls *ifaxcovidvbot.parser.textparser* when glued text seems completed and ended. The Chef's answer is organized in separate class with special flag. This flag signals when the last message were properly cooked to send ready answer to user. Also Chef rapidly cooks short RPN report when recieved one, calling *ifaxbotcovid.parser.rpn*.
+Under the bonnet Chef stores messages in temporary MessageStorage (using deque), glues sequential messages from single user with certain context (defined in *ifaxbotcovid.config*) together and calls *ifaxcovidvbot.parser.textparser* when glued text seems completed and ended. The Chef's answer is organized in separate class with special flag. This flag signals when the last message were properly cooked to send ready answer to user. Also Chef rapidly cooks short RPN report when recieved one, calling *ifaxbotcovid.parser.rpn*.
 
 **Environment variables**
 

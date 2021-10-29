@@ -9,6 +9,10 @@ rpn = RPN(rawtext)
 text = rpn.construct()
 log = rpn.log
 
+Russian:
+Переписывает короткий кусок текста - сообщение пресс-службы Роспотребнадзора
+о ситуации с тестированием в России - в готовый абзац для новости.
+
 '''
 
 import re
@@ -16,17 +20,14 @@ import re
 import ifaxbotcovid.config.schemes as schemes
 import ifaxbotcovid.parser.dateline as dateline
 from ifaxbotcovid.parser.utils import ParserHelpers
+from ifaxbotcovid.parser.regexp import rpn_regex
 
 
 class RPN:
 
     def __init__(self, rawtext):
         self.rawtext = rawtext
-        self.regexes = {
-            'total_tests': r'РФ проведен\w? более (\d+,?\d?) млн\.? тест\w+ на корона',
-            'recent_tests': r'за сутки проведено (\d+) тыс. тестов на коронав',
-            'people_monitored': r'под меднаблюдением оста\wтся (\d{0,3}\s?\d+\s\d+)\s{1,3}чел'
-            }
+        self.regexes = rpn_regex.rpn_regex
 
         self.values = {
             'total_tests': 'NO_VALUE',
@@ -70,16 +71,25 @@ class RPN:
         else:
             return value
 
-    def find_values(self): 
-        
+    def find_values(self):
+
         '''
-        Method fetches values from the given rawtext 
-        {'total_tests' : '...', ''recent_tests' : '...', 'people_monitored' : '...'}
+        Method fetches values from the given rawtext
+        {
+            'total_tests': '...',
+            'recent_tests': '...',
+            'people_monitored': '...'
+        }
         '''
 
         self.log.append(
-            '\n         *** Запускаю поиск переменных для пресс-релиза РПН. Результаты:\n'
-            )
+            ' '.join((
+                '\n',
+                ' '*7,  # seven spaces
+                '*** Запускаю поиск переменных для пресс-релиза РПН',
+                'Результаты:\n'
+            ))
+        )
         for regex in self.regexes.values():
             value_name = self.get_key(self.regexes, regex)
             try:
@@ -92,8 +102,8 @@ class RPN:
                 if str(exc) == 'list index out of range':
                     exc = 'Не удалось найти значение'
                 self.log.append(
-                    'Переменная не заполнена: {} ({})'.format(value_name, exc)
-                    )
+                    f'Переменная не заполнена: {value_name} ({exc})'
+                )
 
     def construct(self):
         '''
@@ -116,6 +126,8 @@ class RPN:
                 )
             )
         except Exception as exc:
-            self.log.append('<b>Exception при попытке заполнить rpn:</b> ' + str(exc))
+            self.log.append(
+                f'<b>Exception при попытке заполнить rpn:</b> {str(exc)}'
+            )
             return None
         return result

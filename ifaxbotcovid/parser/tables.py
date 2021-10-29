@@ -1,8 +1,12 @@
-import re
-
-import ifaxbotcovid.parser.regioncounter as r
-
 '''
+Finds and returns pieces of raw COVID-19 press-release that look
+like tables. There are 3 such tables in typical release:
+
+- COVID-19 cases in Russian regions
+- new deaths
+- new recovered per
+
+
 Скрипт находит таблицы новых случев и смертей в пресс-релизе оперштаба
 и возвращает обработанные скриптом regioncounter.py абзацы с отсортированными
 регионами.
@@ -11,13 +15,14 @@ import ifaxbotcovid.parser.regioncounter as r
 где менее 100 случаев за последние сутки. Вторую таблицу даем полностью.
 '''
 
+import re
+
+import ifaxbotcovid.parser.regioncounter as r
+from ifaxbotcovid.parser.regexp import table_detect
+
+
 # задаем regex'ы для парсинга двух таблиц в релизе
-REGEXES = dict(
-           newcases=r'Распределение по субъектам(.*)В Российской Федерации нарастающ',
-           newdeaths='|'.join((
-               r'подтвержден\w? {1,4}\d{0,3}\s?\d+ {1,4}летальн\w+ случа\w+(.*)За весь период по России умер',
-               r'подтвержден\w? {1,4}\d{0,3}\s?\d+ {1,4}смерт(.*)За весь период по России умер'))
-              )
+REGEXES = table_detect.detector_dict
 
 # здесь будут храниться таблицы
 TABLES = dict(newcases='NO_TABLE', newdeaths='NO_TABLE')
@@ -47,6 +52,7 @@ def choose_value(value):
     else:
         return value
 
+
 def find_tables(raw_txt):
     global TABLES
     for regex in REGEXES.values():
@@ -70,25 +76,46 @@ def get_prepared(ready_table, table_type, short=100):
         splitted_ready_cases = ready_table.split(',')
         if 'Москв' in splitted_ready_cases[0]:
             first_reg = splitted_ready_cases[1]
-            splitted_ready_cases[1] = first_reg.replace('-', 'новых случаев COVID-19 зафиксировано', 1)
-            joined_ready_cases = ','.join(splitted_ready_cases[1:]) # убираем Москву
+            splitted_ready_cases[1] = first_reg.replace(
+                '-', 'новых случаев COVID-19 зафиксировано', 1
+            )
+            joined_ready_cases = ','.join(
+                splitted_ready_cases[1:]
+            )  # убираем Москву
         else:
-            joined_ready_cases = ','.join(splitted_ready_cases) # Москва не в начале, не трогаем
-        cases_final = 'По информации оперативного штаба, еще' + joined_ready_cases + 'В других регионах России суточный прирост не превышает ' + str(short) + '.'
+            joined_ready_cases = ','.join(
+                splitted_ready_cases
+            )  # Москва не в начале, не трогаем
+        cases_final = ''.join((
+            'По информации оперативного штаба, еще',
+            joined_ready_cases,
+            'В других регионах России суточный прирост не превышает ',
+            str(short),
+            '.'
+        ))
         return cases_final
     if table_type == 'ready_deaths':
         splitted_deaths = ready_table.split(',')
         first_reg = splitted_deaths[0]
         if ' - ' in first_reg:
-            splitted_deaths[0] = first_reg.replace('-', 'пациентов скончалось за сутки', 1)
+            splitted_deaths[0] = first_reg.replace(
+                '-', 'пациентов скончалось за сутки', 1
+            )
         joint_deaths = ','.join(splitted_deaths)
         cases_final = 'Согласно данным оперштаба о смертности, ' + joint_deaths
         return cases_final
 
 
 def process_tables(short=100):
-    rc_ready_cases = r.RegionCounter(TABLES['newcases'], table_type='new_cases', short=short)
-    rc_ready_deaths = r.RegionCounter(TABLES['newdeaths'], table_type='dead')
+    rc_ready_cases = r.RegionCounter(
+        TABLES['newcases'],
+        table_type='new_cases',
+        short=short
+    )
+    rc_ready_deaths = r.RegionCounter(
+        TABLES['newdeaths'],
+        table_type='dead'
+    )
     ready_cases, log1 = rc_ready_cases(), rc_ready_cases.log
     ready_deaths, log2 = rc_ready_deaths(), rc_ready_deaths.log
     log = log1 + log2

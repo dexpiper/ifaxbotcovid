@@ -69,3 +69,20 @@ class ParserHelpers:
                 return '%s тыс. %s' % (str(thousands), zfill(str(hundreds)))
         else:
             return str(arg)
+
+    def choose_value(value):
+        '''
+        Функция сокращает tuple вида ('', 'цифра', '') до 'цифра'
+        '''
+        if type(value) == tuple:
+            if len(value) > 1:
+                for item in value:
+                    if item == '':
+                        None
+                    else:
+                        return item
+                return ''
+            else:
+                return value[0]
+        else:
+            return value
