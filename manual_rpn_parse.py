@@ -1,7 +1,7 @@
 import pprint
 import pyperclip
 
-from ifaxbotcovid import rpn as RPN_parser
+from ifaxbotcovid.parser import rpn as RPN_parser
 
 if pyperclip.paste is not None:
     rawtext = pyperclip.paste()

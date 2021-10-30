@@ -15,7 +15,7 @@ class Parser():
             self,
             txt,
             mode='Normal',
-            short=250,
+            short=400,
             logger=logging.getLogger(__name__)
     ):
 
