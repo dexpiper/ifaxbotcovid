@@ -36,11 +36,11 @@ golden_cite             # a piece of original raw text for the second paragraph
 flash = '''ЭМБАРГО
 
 МОЛНИЯ
-В РФ ВЫЯВЛЕНО {russia_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ COVID-19 ЗА СУТКИ ({russia_current_pace}), {russia_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {russia_new_recovered} ТЫС. ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
+В РФ ВЫЯВЛЕНО {russia_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ COVID-19 ЗА СУТКИ ({russia_current_pace}), {russia_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {russia_new_recovered} ТЫС. ВЫЗДОРОВЕЛИ – ОПЕРШТАБ
 1**
 
 МОЛНИЯ
-В МОСКВЕ ВЫЯВЛЕНО {moscow_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ КОРОНАВИРУСОМ ЗА СУТКИ, {moscow_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {moscow_new_recovered} ВЫПИСАНЫ ИЗ БОЛЬНИЦ – ОПЕРШТАБ
+В МОСКВЕ ВЫЯВЛЕНО {moscow_new_cases} НОВЫХ СЛУЧАЕВ ЗАРАЖЕНИЯ КОРОНАВИРУСОМ ЗА СУТКИ, {moscow_new_deaths} ПАЦИЕНТОВ СКОНЧАЛИСЬ, {moscow_new_recovered} ВЫЗДОРОВЕЛИ – ОПЕРШТАБ
 1**
 '''
 
