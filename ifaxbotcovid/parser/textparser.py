@@ -135,7 +135,7 @@ class Parser():
                     message.append(
                         ' '.join((
                             f'Значение переменной {var} ({values_dct[var]})',
-                            'меньше референсного значения'
+                            f'меньше референсного значения {reference_value}'
                         ))
                     )
             except Exception:

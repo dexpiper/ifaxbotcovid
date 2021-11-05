@@ -16,6 +16,5 @@ if pyperclip.paste is not None:
     text = parser()
     if type(text) == tuple:
         for el in text:
-            # print(el)
-            pass
+            print(el)
     pprint.pprint(parser.log)
