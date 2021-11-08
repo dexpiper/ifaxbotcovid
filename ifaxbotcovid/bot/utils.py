@@ -2,6 +2,12 @@ from ifaxbotcovid.bot.helpers import FileSaver
 
 
 class Sender:
+    '''
+    A wrapper around bot.sendmessage, provides
+    useful methods to send ready answer, logs
+    and/or warningmessage according to user request,
+    and answer cooked by CovidChef.
+    '''
 
     def __init__(self, bot, message, answer, logger):
         self.bot = bot
