@@ -1,8 +1,10 @@
 import pytest
 import time
+from pathlib import Path
 
 from ifaxbotcovid.bot.helpers import (MessageStorage,
-                                      JointMessage, LogConstructor)
+                                      JointMessage, LogConstructor,
+                                      FileSaver)
 
 
 @pytest.fixture(scope='class')
@@ -250,3 +252,29 @@ class TestMessageStorage:
             )
         ) + '\n'
         assert log_as_single_string == expecting
+
+
+class TestFileSaver:
+
+    @pytest.fixture(scope='function')
+    def text(self):
+        t = '\n'.join((
+            'This is some long text',
+            'It has multiple strings!',
+            'You can read it line by line',
+            '',
+            'And this is the last string. Bye!'
+        ))
+        return t
+
+    @pytest.fixture
+    def tempdir(self, tmpdir_factory):
+        tmpdir = tmpdir_factory.mktemp('temp')
+        yield tmpdir
+
+    def test_file_saver(self, text, tempdir,
+                        username: str = 'foobar',
+                        timestamp: int = 12345):
+        file_path = FileSaver.to_file(text, username, timestamp, tempdir)
+        assert file_path == f'{tempdir}/{username}{str(timestamp)}.txt'
+        assert Path(file_path).is_file()

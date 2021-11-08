@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from ifaxbotcovid.config import settings, startmessage
 from ifaxbotcovid.bot.factory import create_bot, create_chef
+from ifaxbotcovid.bot.helpers import FileSaver
 
 # logging settings
 fileConfig('ifaxbotcovid/config/logging.ini')
@@ -30,6 +31,71 @@ chef = create_chef(
 )
 
 
+def run_long_polling():
+    botlogger.info('Starting polling...')
+    bot.infinity_polling()
+
+
+class Sender:
+
+    def __init__(self, bot, message, answer):
+        self.bot = bot
+        self.message = message
+        self.answer = answer
+        self.sign = self._check_if_signed()
+
+    def _check_if_signed(self):
+        if (
+            self.message.text.endswith('йй')
+        ) or (
+            self.message.text.startswith('йй')
+        ):
+            return True
+        else:
+            return False
+
+    def send_warn(self):
+        if self.answer.warnmessage:
+            self.bot.send_message(
+                self.message.chat.id, self.answer.warnmessage)
+            botlogger.info(
+                'Warning message sent to %s' % self.message.from_user.username
+            )
+
+    def send_log(self):
+        if self.sign:
+            self.bot.send_message(self.message.chat.id, self.answer.log)
+            botlogger.info(
+                'Log message sent to %s' % self.message.from_user.username)
+
+    def send_directly(self):
+        self.send_warn()
+        self.bot.send_message(self.message.chat.id, self.answer.ready_text)
+        botlogger.info(
+            'Ready answer sent to %s' % self.message.from_user.username
+        )
+        self.send_log()
+
+    def send_asfile(self):
+        path = FileSaver.to_file(
+            text=self.answer.ready_text,
+            username=self.message.from_user.username
+        )
+        self.send_warn()
+        self.send_log()
+        try:
+            self.bot.send_document(
+                self.message.chat.id, open(path), 'document'
+            )
+        except Exception as exc:
+            botlogger.error('No system log file found! Exception: %s' % exc)
+            self.bot.send_message(
+                self.message.chat.id, 'Ошибка при отправке файла')
+
+
+#
+# message handlers
+#
 @bot.message_handler(commands=['start'])
 def answer_start(message):
     '''
@@ -71,23 +137,26 @@ def syslog_sender(message):
 @bot.message_handler(content_types=['text'])
 def user_request(message):
     botlogger.info('User %s send some text' % message.from_user.username)
-    answer = chef.process_new_message(message)
-    if answer.flag:
-        if answer.warnmessage:
-            bot.send_message(message.chat.id, answer.warnmessage)
-            botlogger.info(
-                'Warning message sent to %s' % message.from_user.username
-            )
-        bot.send_message(message.chat.id, answer.ready_text)
+    if message.text.lower().endswith('йййй'):
         botlogger.info(
-            'Ready answer sent to %s' % message.from_user.username
+            'User %s requested answer in file' % message.from_user.username
         )
-        if message.text.endswith('йй') or message.text.startswith('йй'):
-            bot.send_message(message.chat.id, answer.log)
+        asfile = True
+    else:
+        asfile = False
+    answer = chef.process_new_message(message=message, asfile=asfile)
+    if answer.flag:
+        sender = Sender(bot, message, answer)
+        if asfile:
+            botlogger.info('Sending answer in file')
+            sender.send_asfile()
+        elif len(answer.ready_text) > 4070:
             botlogger.info(
-                'Log message sent to %s' % message.from_user.username)
-
-
-def run_long_polling():
-    botlogger.info('Starting polling...')
-    bot.infinity_polling()
+                'Sending answer in file: len answer (%s) > 4070' % str(
+                    len(answer.ready_text)
+                )
+            )
+            sender.send_asfile()
+        else:
+            botlogger.info('Sending answer in a direct message')
+            sender.send_directly()

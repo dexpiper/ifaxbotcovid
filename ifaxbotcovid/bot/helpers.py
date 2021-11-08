@@ -1,5 +1,6 @@
 from collections import deque
 from time import time
+import os
 from typing import NamedTuple
 
 
@@ -175,3 +176,17 @@ class LogConstructor:
         except Exception as exc:
             return f'Exception raised during log construction: {exc}'
         return result
+
+
+class FileSaver:
+
+    def to_file(text: str,
+                username: str = 'default',
+                timestamp: int = int(time()),
+                tempdir: str = './temp'
+                ) -> str:
+        path = f'{tempdir}/{username}{str(timestamp)}.txt'
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            f.write(text)
+        return path

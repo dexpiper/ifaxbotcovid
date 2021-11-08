@@ -13,10 +13,11 @@ class Parser():
 
     def __init__(
             self,
-            txt,
+            txt: str,
             mode='Normal',
-            short=400,
-            logger=logging.getLogger(__name__)
+            short: int = 250,
+            logger=logging.getLogger(__name__),
+            asfile: bool = False
     ):
 
         dl = dateline.Dateline()
@@ -48,6 +49,7 @@ class Parser():
             self.flash_pattern = s.flash
             self.text_pattern = s.text
         self.logger = logger
+        self.asfile = asfile
 
     def NAcounter(self):
         i = 0
@@ -246,17 +248,19 @@ class Parser():
         self.find_values()
         result = self.fill_the_gaps()
         if len(result) >= 4090:
-            self.logger.debug('Resulting message too long. Trying to shorten')
-            # увеличение self.short укорачивает
-            # таблицу новых случаев COVID-19 в регионах
-            for i in range(6):
-                self.log = []
-                self.short += 50
-                self.find_values()
-                result = self.fill_the_gaps()
-                # лимит Telegram на длину одного сообщения
-                if len(result) <= 4090:
-                    break
+            if not self.asfile:
+                self.logger.debug(
+                    'Resulting message too long. Trying to shorten')
+                # увеличение self.short укорачивает
+                # таблицу новых случаев COVID-19 в регионах
+                for i in range(6):
+                    self.log = []
+                    self.short += 50
+                    self.find_values()
+                    result = self.fill_the_gaps()
+                    # лимит Telegram на длину одного сообщения
+                    if len(result) <= 4090:
+                        break
         check_message = self.fool_check(self.values)
         if check_message:
             attention_message += check_message
