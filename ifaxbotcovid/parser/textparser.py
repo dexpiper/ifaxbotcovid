@@ -15,7 +15,7 @@ class Parser():
             self,
             txt: str,
             mode='Normal',
-            short: int = 250,
+            short: int = 300,
             logger=logging.getLogger(__name__),
             asfile: bool = False
     ):
@@ -247,20 +247,19 @@ class Parser():
         attention_message = ''
         self.find_values()
         result = self.fill_the_gaps()
-        if len(result) >= 4090:
-            if not self.asfile:
-                self.logger.debug(
-                    'Resulting message too long. Trying to shorten')
-                # увеличение self.short укорачивает
-                # таблицу новых случаев COVID-19 в регионах
-                for i in range(6):
-                    self.log = []
-                    self.short += 50
-                    self.find_values()
-                    result = self.fill_the_gaps()
-                    # лимит Telegram на длину одного сообщения
-                    if len(result) <= 4090:
-                        break
+        if (len(result) >= 4090) and not self.asfile:
+            self.logger.debug(
+                'Resulting message too long. Trying to shorten')
+            # увеличение self.short укорачивает
+            # таблицу новых случаев COVID-19 в регионах
+            for i in range(6):
+                self.log = []
+                self.short += 50
+                self.find_values()
+                result = self.fill_the_gaps()
+                # лимит Telegram на длину одного сообщения
+                if len(result) <= 4090:
+                    break
         check_message = self.fool_check(self.values)
         if check_message:
             attention_message += check_message
