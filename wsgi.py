@@ -6,8 +6,8 @@ import telebot
 from flask import request
 
 from ifaxbotcovid.bot import factory
-from ifaxbotcovid.config import settings, startmessage
-from ifaxbotcovid.bot.utils import Sender
+from ifaxbotcovid.config import settings, startmessage, helpmessage
+from ifaxbotcovid.bot.utils import Sender, CommandParser
 
 
 # logging settings
@@ -55,6 +55,17 @@ def answer_start(message):
         settings.users.append((user, chat_id))
 
 
+@bot.message_handler(commands=['help'])
+def answer_help(message):
+    '''
+    Bot sends help message
+    '''
+    botlogger.info(
+        'User %s issued "help" command' % message.from_user.username)
+    bot.send_message(message.chat.id, helpmessage.helpmsg(),
+                     parse_mode='HTML')
+
+
 @bot.message_handler(commands=['log'])
 def syslog_sender(message):
     '''
@@ -81,17 +92,21 @@ def syslog_sender(message):
 @bot.message_handler(content_types=['text'])
 def user_request(message):
     botlogger.info('User %s send some text' % message.from_user.username)
-    if message.text.lower().endswith('йййй'):
+    commands = CommandParser.get_settings(message)
+    if commands.short:
         botlogger.info(
-            'User %s requested answer in file' % message.from_user.username
+            'User %s requested a boundary cut' % message.from_user.username
         )
-        asfile = True
+        answer = chef.process_new_message(message=message,
+                                          asfile=commands.asfile,
+                                          short=commands.short)
     else:
-        asfile = False
-    answer = chef.process_new_message(message=message, asfile=asfile)
+        answer = chef.process_new_message(message=message,
+                                          asfile=commands.asfile)
     if answer.flag:
-        sender = Sender(bot, message, answer, logger=botlogger)
-        if asfile:
+        sender = Sender(bot, message, answer, botlogger,
+                        logrequest=commands.logrequest)
+        if commands.asfile:
             botlogger.info('Sending answer in file')
             sender.send_asfile()
         elif len(answer.ready_text) > 4070:

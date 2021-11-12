@@ -1,7 +1,7 @@
 import logging
 from logging.config import fileConfig
 
-from ifaxbotcovid.config import settings, startmessage
+from ifaxbotcovid.config import settings, startmessage, helpmessage
 from ifaxbotcovid.bot.factory import create_bot, create_chef
 from ifaxbotcovid.bot.utils import Sender, CommandParser
 
@@ -52,6 +52,17 @@ def answer_start(message):
     chat_id = message.chat.id
     if (user, chat_id) not in settings.users:
         settings.users.append((user, chat_id))
+
+
+@bot.message_handler(commands=['help'])
+def answer_help(message):
+    '''
+    Bot sends help message
+    '''
+    botlogger.info(
+        'User %s issued "help" command' % message.from_user.username)
+    bot.send_message(message.chat.id, helpmessage.helpmsg(),
+                     parse_mode='HTML')
 
 
 @bot.message_handler(commands=['log'])
