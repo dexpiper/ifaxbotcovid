@@ -3,7 +3,7 @@ from logging.config import fileConfig
 
 from ifaxbotcovid.config import settings, startmessage
 from ifaxbotcovid.bot.factory import create_bot, create_chef
-from ifaxbotcovid.bot.utils import Sender
+from ifaxbotcovid.bot.utils import Sender, CommandParser
 
 # logging settings
 fileConfig('ifaxbotcovid/config/logging.ini')
@@ -80,17 +80,21 @@ def syslog_sender(message):
 @bot.message_handler(content_types=['text'])
 def user_request(message):
     botlogger.info('User %s send some text' % message.from_user.username)
-    if message.text.lower().endswith('йййй'):
+    commands = CommandParser.get_settings(message)
+    if commands.short:
         botlogger.info(
-            'User %s requested answer in file' % message.from_user.username
+            'User %s requested a boundary cut' % message.from_user.username
         )
-        asfile = True
+        answer = chef.process_new_message(message=message,
+                                          asfile=commands.asfile,
+                                          short=commands.short)
     else:
-        asfile = False
-    answer = chef.process_new_message(message=message, asfile=asfile)
+        answer = chef.process_new_message(message=message,
+                                          asfile=commands.asfile)
     if answer.flag:
-        sender = Sender(bot, message, answer, logger=botlogger)
-        if asfile:
+        sender = Sender(bot, message, answer, botlogger,
+                        logrequest=commands.logrequest)
+        if commands.asfile:
             botlogger.info('Sending answer in file')
             sender.send_asfile()
         elif len(answer.ready_text) > 4070:

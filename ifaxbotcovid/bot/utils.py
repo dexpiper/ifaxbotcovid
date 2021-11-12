@@ -13,22 +13,13 @@ class Sender:
     and answer cooked by CovidChef.
     '''
 
-    def __init__(self, bot, message, answer, logger):
+    def __init__(self, bot, message, answer, logger,
+                 logrequest: bool = False):
         self.bot = bot
         self.message = message
         self.answer = answer
-        self.sign = self._check_if_signed()
         self.botlogger = logger
-
-    def _check_if_signed(self):
-        if (
-            self.message.text.endswith('йй')
-        ) or (
-            self.message.text.startswith('йй')
-        ):
-            return True
-        else:
-            return False
+        self.logrequest = logrequest
 
     def send_warn(self):
         if self.answer.warnmessage:
@@ -39,7 +30,7 @@ class Sender:
             )
 
     def send_log(self):
-        if self.sign:
+        if self.logrequest:
             self.bot.send_message(self.message.chat.id, self.answer.log)
             self.botlogger.info(
                 'Log message sent to %s' % self.message.from_user.username)

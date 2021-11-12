@@ -22,7 +22,7 @@ users = []              # normally, an empty list
 # region list division boundaries
 upper = 700
 lower = 100
-boundary_default = 300
+boundary_default = 250
 
 boundary = namedtuple('Boundary', ['upper', 'lower'])
 boundary.upper = upper
