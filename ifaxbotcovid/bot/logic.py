@@ -71,7 +71,8 @@ class CovidChef():
     def process_new_message(self,
                             message: object,
                             time=int(time.time()),
-                            asfile: bool = False) -> Answer:
+                            asfile: bool = False,
+                            short: int = 300) -> Answer:
         '''
         Take message, store it in MessageStorage, check if
         it should be concatenated with previous messages and
@@ -95,7 +96,7 @@ class CovidChef():
                 self.logger.debug('Message marked as valid')
                 self.storage.drop()
                 return self.cook_long_answer(joint_message, message,
-                                             asfile)
+                                             asfile, short)
             else:
                 self.logger.debug('Message skipped')
                 return self.cook_empty_answer(message)
@@ -115,7 +116,8 @@ class CovidChef():
     def cook_long_answer(self,
                          joint_message,
                          message: object,
-                         asfile: bool) -> Answer:
+                         asfile: bool,
+                         short: int) -> Answer:
         '''
         Call ifaxbotcovid.parser.textparser to process
         long COVID-19 press-release: take data out of it
@@ -123,7 +125,7 @@ class CovidChef():
         '''
         raw_text = joint_message.text
         news_parser = Parser(txt=raw_text, logger=self.logger,
-                             asfile=asfile)
+                             asfile=asfile, short=short)
         warn_message, ready_text = news_parser()
         log = LogConstructor.join_log_message(news_parser.log)
         self.logger.debug('Long answer cooked')

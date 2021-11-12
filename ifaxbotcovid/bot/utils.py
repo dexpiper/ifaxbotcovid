@@ -1,3 +1,7 @@
+import re
+from typing import NamedTuple
+import logging
+
 from ifaxbotcovid.bot.helpers import FileSaver
 
 
@@ -64,3 +68,39 @@ class Sender:
                 'No system log file found! Exception: %s' % exc)
             self.bot.send_message(
                 self.message.chat.id, 'Ошибка при отправке файла')
+
+
+class CommandParser:
+
+    logger = logging.getLogger(__name__)
+
+    class CommandList(NamedTuple):
+        asfile: bool = False   # if user requested answer in a file
+        logrequest: bool = False
+        short: int = 0     # var responsible to shorten region list
+
+    def _get_short(text):
+        short = 0
+        short_pattern = re.compile(r'\$\$ {0,1}(\d{2,4})')
+        match = short_pattern.search(text)
+        if match:
+            result_as_text = match.group(1)
+            CommandParser.logger.debug(result_as_text)
+            try:
+                short = int(result_as_text)
+            except ValueError:
+                CommandParser.logger.warning(' '.join((
+                    'CommandParser failed to get integer',
+                    'from a match object. $short set to 0'
+                    ))
+                )
+        return short
+
+    def get_settings(message) -> CommandList:
+        text = message.text.lower()
+        logreq_condition = 'йй' in text
+        asfile_condition = '$$' in text
+        short = CommandParser._get_short(text)
+        return CommandParser.CommandList(asfile=asfile_condition,
+                                         logrequest=logreq_condition,
+                                         short=short)

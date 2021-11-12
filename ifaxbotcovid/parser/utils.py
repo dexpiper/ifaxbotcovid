@@ -1,5 +1,7 @@
 import re
 
+from ifaxbotcovid.config.settings import boundary, boundary_default
+
 
 class ParserHelpers:
 
@@ -86,3 +88,15 @@ class ParserHelpers:
                 return value[0]
         else:
             return value
+
+    def check_short(value):
+        value = round(value / 10) * 10
+        condition = (
+            value >= boundary.lower
+            ) and (
+            value <= boundary.upper
+        )
+        if condition:
+            return value
+        else:
+            return boundary_default

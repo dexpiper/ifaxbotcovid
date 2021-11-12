@@ -44,7 +44,7 @@ class Parser():
         self.log = []
         self.txt = txt
         self.mode = mode
-        self.short = short
+        self.short = ParserHelpers.check_short(short)
         if self.mode == 'Normal':
             self.flash_pattern = s.flash
             self.text_pattern = s.text
