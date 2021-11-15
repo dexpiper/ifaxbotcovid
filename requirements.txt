@@ -19,7 +19,7 @@ pycodestyle==2.8.0
 pyflakes==2.4.0
 pyparsing==2.4.7
 pyperclip==1.8.2
-pyTelegramBotAPI==3.7.9
+pyTelegramBotAPI==4.2.0
 pytest==6.2.5
 requests==2.25.1
 toml==0.10.2
