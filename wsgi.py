@@ -6,8 +6,7 @@ import telebot
 from flask import request
 
 from ifaxbotcovid.bot import factory
-from ifaxbotcovid.config import settings, startmessage, helpmessage
-from ifaxbotcovid.bot.utils import Sender, CommandParser
+from ifaxbotcovid.config import settings
 
 
 # logging settings
@@ -36,89 +35,21 @@ chef = factory.create_chef(
     logger=botlogger
 )
 
-
-#
-# MESSAGE HANDLERS
-#
-@bot.message_handler(commands=['start'])
-def answer_start(message):
-    '''
-    Bot sends welcome message
-    '''
-    bot.send_message(message.chat.id, startmessage.startmsg(),
-                     parse_mode='HTML')
-    botlogger.info(
-        'User %s issued "start" command' % message.from_user.username)
-    user = message.from_user.username
-    chat_id = message.chat.id
-    if (user, chat_id) not in settings.users:
-        settings.users.append((user, chat_id))
+# registering into flask
+app.config['TELEBOT'] = bot
+app.config['TELEBOT_LOGGER'] = tblogger
+app.config['COVIDCHEF'] = chef
 
 
-@bot.message_handler(commands=['help'])
-def answer_help(message):
-    '''
-    Bot sends help message
-    '''
-    botlogger.info(
-        'User %s issued "help" command' % message.from_user.username)
-    bot.send_message(message.chat.id, helpmessage.helpmsg(),
-                     parse_mode='HTML')
+# registering bot handlers
+with app.app_context():
 
+    from ifaxbotcovid.bot.handlers import BotHandlers
 
-@bot.message_handler(commands=['log'])
-def syslog_sender(message):
-    '''
-    Bot sends system log as a file (admin only)
-    '''
-    user = message.from_user.username
-    chat_id = message.chat.id
-    botlogger.info('User %s requested "log" file via command' % user)
-    if chat_id in settings.admins:
-        botlogger.debug('Admin privileges grunted')
-        try:
-            bot.send_document(
-                message.chat.id, open('botlog.log'), 'document'
-            )
-        except Exception as exc:
-            botlogger.error('No system log file found! Exception: %s' % exc)
-    else:
-        botlogger.warning('Access to user %s denied' % user)
-        bot.send_message(
-            message.chat.id, '<b>Access denied</b>', parse_mode='HTML'
-        )
-
-
-@bot.message_handler(content_types=['text'])
-def user_request(message):
-    botlogger.info('User %s send some text' % message.from_user.username)
-    commands = CommandParser.get_settings(message)
-    if commands.short:
-        botlogger.info(
-            'User %s requested a boundary cut' % message.from_user.username
-        )
-        answer = chef.process_new_message(message=message,
-                                          asfile=commands.asfile,
-                                          short=commands.short)
-    else:
-        answer = chef.process_new_message(message=message,
-                                          asfile=commands.asfile)
-    if answer.flag:
-        sender = Sender(bot, message, answer, botlogger,
-                        logrequest=commands.logrequest)
-        if commands.asfile:
-            botlogger.info('Sending answer in file')
-            sender.send_asfile()
-        elif len(answer.ready_text) > 4070:
-            botlogger.info(
-                'Sending answer in file: len answer (%s) > 4070' % str(
-                    len(answer.ready_text)
-                )
-            )
-            sender.send_asfile()
-        else:
-            botlogger.info('Sending answer in a direct message')
-            sender.send_directly()
+    for handler in BotHandlers.handlers:
+        name = handler[0]
+        kwargs = handler[1]
+        bot.register_message_handler(name, **kwargs)
 
 
 #

@@ -9,3 +9,4 @@ botlog.log
 manual_table_parse.py
 manual_rpn_parse.py
 pytest.ini
+tst.py
