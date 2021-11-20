@@ -2,7 +2,7 @@ import functools
 
 from flask import current_app
 
-from ifaxbotcovid.config import settings, startmessage, helpmessage
+from ifaxbotcovid.config.utils import settings, startmessage, helpmessage
 from ifaxbotcovid.bot.utils import Sender, CommandParser
 
 

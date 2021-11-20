@@ -6,7 +6,7 @@ import telebot
 from flask import request
 
 from ifaxbotcovid.bot import factory
-from ifaxbotcovid.config import settings
+from ifaxbotcovid.config.utils import settings
 
 
 # logging settings
