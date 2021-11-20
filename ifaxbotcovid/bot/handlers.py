@@ -1,4 +1,5 @@
 import functools
+import logging
 
 from flask import current_app
 
@@ -19,10 +20,15 @@ class BotHandlers:
 
     @classmethod
     def register(cls):
-        for handler in BotHandlers.handlers:
-            name = handler[0]
-            kwargs = handler[1]
-            bot.register_message_handler(name, **kwargs)
+        try:
+            for handler in BotHandlers.handlers:
+                name = handler[0]
+                kwargs = handler[1]
+                bot.register_message_handler(name, **kwargs)
+            return True
+        except Exception as exc:
+            logging.error('Cannot register handlers: %s', exc)
+            return False
 
     def handler(append_to=handlers, **out_kwargs):
         '''
