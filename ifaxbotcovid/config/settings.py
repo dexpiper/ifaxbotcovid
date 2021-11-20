@@ -1,29 +1,39 @@
 from collections import namedtuple
+import logging
 
-base_vars = {
-    'russia_total_cases': '8590000',
-    'russia_total_deaths': '240000',
-    'russia_total_recovered': '7400000'
-}
+import yaml
+
+
+file = 'ifaxbotcovid/config/settings.yml'
+
+with open(file, 'r') as stream:
+    try:
+        config = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        logging.error('Cannot get configuration file: %s', exc)
+
+
+base_vars = config['base_vars']
 
 # key words to detect valid press-release
-key_words = ['COVID-19', 'коронавирус', 'инфекц']
+key_words = config['key_words']
 
 # key word to mark the end of long message
-stop_phrase = 'За весь период выписано'
+stop_phrase = config['stop_phrase']
 
 # short procedure keyword
-short_procedure_key = 'Роспотребнадзор:'
+short_procedure_key = config['short_procedure_key']
 
 # admins and users chat_id's
-admins = [138946204]
-users = []              # normally, an empty list
+admins = config['admins']
+
+if not config['users']:
+    users = []
+else:
+    user = config['users']
 
 # region list division boundaries
-upper = 700
-lower = 100
-boundary_default = 250
+boundaries = config['boundaries']
 
-boundary = namedtuple('Boundary', ['upper', 'lower'])
-boundary.upper = upper
-boundary.lower = lower
+BoundaryTuple = namedtuple('Boundary', ['upper', 'lower', 'default'])
+boundary = BoundaryTuple(**boundaries)

@@ -1,6 +1,6 @@
 import re
 
-from ifaxbotcovid.config.settings import boundary, boundary_default
+from ifaxbotcovid.config.settings import boundary
 
 
 class ParserHelpers:
@@ -99,4 +99,4 @@ class ParserHelpers:
         if condition:
             return value
         else:
-            return boundary_default
+            return boundary.default
