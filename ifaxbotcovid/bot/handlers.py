@@ -17,13 +17,17 @@ class BotHandlers:
 
     handlers = []
 
-    def register(self):
+    @classmethod
+    def register(cls):
         for handler in BotHandlers.handlers:
             name = handler[0]
             kwargs = handler[1]
-            self.bot.register_message_handler(name, **kwargs)
+            bot.register_message_handler(name, **kwargs)
 
     def handler(append_to=handlers, **out_kwargs):
+        '''
+        Decorator to register telebot handlers
+        '''
 
         def decorator_register(func):
             if out_kwargs:

@@ -39,11 +39,7 @@ app.config['COVIDCHEF'] = chef
 with app.app_context():
 
     from ifaxbotcovid.bot.handlers import BotHandlers
-
-    for handler in BotHandlers.handlers:
-        name = handler[0]
-        kwargs = handler[1]
-        bot.register_message_handler(name, **kwargs)
+    BotHandlers.register()
 
 
 def run_long_polling():
