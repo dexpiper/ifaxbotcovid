@@ -1,8 +1,8 @@
 import logging
 import re
 
-import ifaxbotcovid.config.schemes as s
-import ifaxbotcovid.config.settings as settings
+import ifaxbotcovid.config.utils.schemes as s
+import ifaxbotcovid.config.utils.settings as settings
 import ifaxbotcovid.parser.dateline as dateline
 import ifaxbotcovid.parser.regexp.regex
 import ifaxbotcovid.parser.tables as tables

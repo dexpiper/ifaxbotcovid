@@ -4,7 +4,7 @@ import logging
 import pytest
 
 from ifaxbotcovid.parser.utils import ParserHelpers
-from ifaxbotcovid.config.settings import boundary
+from ifaxbotcovid.config.utils.settings import boundary
 
 
 @pytest.fixture

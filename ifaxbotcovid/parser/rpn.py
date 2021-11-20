@@ -17,7 +17,7 @@ Russian:
 
 import re
 
-import ifaxbotcovid.config.schemes as schemes
+import ifaxbotcovid.config.utils.schemes as schemes
 import ifaxbotcovid.parser.dateline as dateline
 from ifaxbotcovid.parser.utils import ParserHelpers
 from ifaxbotcovid.parser.regexp import rpn_regex

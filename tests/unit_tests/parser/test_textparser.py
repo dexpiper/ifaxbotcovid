@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from ifaxbotcovid.parser import tables, textparser
-from ifaxbotcovid.config.settings import base_vars
+from ifaxbotcovid.config.utils.settings import base_vars
 from tests import instruments as inst
 
 

@@ -1,6 +1,6 @@
 import re
 
-from ifaxbotcovid.config.settings import boundary
+from ifaxbotcovid.config.utils.settings import boundary
 
 
 class ParserHelpers:
