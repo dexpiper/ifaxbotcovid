@@ -1,5 +1,7 @@
 import logging
 
+from ifaxbotcovid.config.utils.settings import version
+
 
 def startmsg():
     try:
@@ -8,4 +10,4 @@ def startmsg():
     except FileNotFoundError:
         logging.warning('File for startmessage has not been found')
         s = 'Welcome to ifaxbotcovid!'
-    return s
+    return s.format(version=version)

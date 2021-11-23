@@ -6,7 +6,7 @@ import telebot
 from flask import request
 
 from ifaxbotcovid.bot import factory
-from ifaxbotcovid.config import settings
+from ifaxbotcovid.config.utils import settings
 
 
 # logging settings
@@ -52,7 +52,7 @@ with app.app_context():
 # FLASK ROUTES
 #
 @app.route('/' + TOKEN, methods=['POST'])
-def getMessage():
+def get_message():
     json_string = request.get_data().decode('utf-8')
     update = telebot.types.Update.de_json(json_string)
     app.logger.debug('Get some message')

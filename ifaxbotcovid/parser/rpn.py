@@ -17,7 +17,7 @@ Russian:
 
 import re
 
-import ifaxbotcovid.config.schemes as schemes
+import ifaxbotcovid.config.utils.tmploader as tmploader
 import ifaxbotcovid.parser.dateline as dateline
 from ifaxbotcovid.parser.utils import ParserHelpers
 from ifaxbotcovid.parser.regexp import rpn_regex
@@ -28,6 +28,7 @@ class RPN:
     def __init__(self, rawtext):
         self.rawtext = rawtext
         self.regexes = rpn_regex.rpn_regex
+        self.template = tmploader.getrpntemplate()
 
         self.values = {
             'total_tests': 'NO_VALUE',
@@ -117,7 +118,7 @@ class RPN:
         date_day = dl.weekday
 
         try:
-            result = schemes.rpn.format(
+            result = self.template.format(
                 date_day=date_day,
                 total_tests=total_tests,
                 recent_tests=recent_tests,

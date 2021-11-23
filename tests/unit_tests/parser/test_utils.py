@@ -4,7 +4,7 @@ import logging
 import pytest
 
 from ifaxbotcovid.parser.utils import ParserHelpers
-from ifaxbotcovid.config.settings import boundary, boundary_default
+from ifaxbotcovid.config.utils.settings import boundary
 
 
 @pytest.fixture
@@ -87,12 +87,12 @@ class TestCheckShort:
 
     def test_short_bad(self):
         result = ParserHelpers.check_short(2000)
-        assert result == boundary_default
+        assert result == boundary.default
 
     def test_short_rounding(self):
-        i = boundary_default + 2
+        i = boundary.default + 2
         result = ParserHelpers.check_short(i)
-        assert result == boundary_default
+        assert result == boundary.default
 
     def test_short_good(self):
         i = 400

@@ -1,8 +1,8 @@
 import logging
 import re
 
-import ifaxbotcovid.config.schemes as s
-import ifaxbotcovid.config.settings as settings
+import ifaxbotcovid.config.utils.tmploader as tmploader
+import ifaxbotcovid.config.utils.settings as settings
 import ifaxbotcovid.parser.dateline as dateline
 import ifaxbotcovid.parser.regexp.regex
 import ifaxbotcovid.parser.tables as tables
@@ -46,8 +46,8 @@ class Parser():
         self.mode = mode
         self.short = ParserHelpers.check_short(short)
         if self.mode == 'Normal':
-            self.flash_pattern = s.flash
-            self.text_pattern = s.text
+            self.flash_pattern = tmploader.getflashtemplate()
+            self.text_pattern = tmploader.gettexttemplate()
         self.logger = logger
         self.asfile = asfile
 

@@ -7,5 +7,5 @@ def helpmsg():
             h = file.read()
     except FileNotFoundError:
         logging.warning('File for helpmessage has not been found')
-        h = 'Welcome to ifaxbotcovid!'
+        h = 'This is a help message'
     return h

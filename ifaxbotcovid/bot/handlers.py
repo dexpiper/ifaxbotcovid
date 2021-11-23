@@ -1,8 +1,9 @@
 import functools
+import logging
 
 from flask import current_app
 
-from ifaxbotcovid.config import settings, startmessage, helpmessage
+from ifaxbotcovid.config.utils import settings, startmessage, helpmessage
 from ifaxbotcovid.bot.utils import Sender, CommandParser
 
 
@@ -14,15 +15,30 @@ with app.app_context():
 
 
 class BotHandlers:
+    '''
+    Message handlers.
+    For use only within app.app_context.
+
+    Every single handler function should be decorated
+    with custom @handler decorator.
+    '''
 
     handlers = []
 
     @classmethod
     def register(cls):
-        for handler in BotHandlers.handlers:
-            name = handler[0]
-            kwargs = handler[1]
-            bot.register_message_handler(name, **kwargs)
+        '''
+        Register message handlers defined below into a TeleBot.
+        '''
+        try:
+            for handler in BotHandlers.handlers:
+                name = handler[0]
+                kwargs = handler[1]
+                bot.register_message_handler(name, **kwargs)
+            return True
+        except Exception as exc:
+            logging.error('Cannot register handlers: %s', exc)
+            return False
 
     def handler(append_to=handlers, **out_kwargs):
         '''

@@ -1,0 +1,36 @@
+---
+base_vars:
+  russia_total_cases: 8590000
+  russia_total_deaths: 240000
+  russia_total_recovered: 7400000
+
+# key words to detect valid press-release
+key_words:
+  - 'COVID-19'
+  - 'коронавирус'
+  - 'инфекц'
+
+# key word to mark the end of long message
+stop_phrase:
+  'За весь период выписано'
+
+# short procedure keyword
+short_procedure_key:
+  'Роспотребнадзор:'
+
+# admins chat_id's
+admins:
+  - 138946204
+
+# users chat_id's - normally empty
+users:
+
+# region list division boundaries
+boundaries:
+  upper: 700
+  lower: 100
+  default: 250
+
+# app version
+version: 2.1.1
+...

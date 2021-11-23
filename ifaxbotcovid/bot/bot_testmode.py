@@ -1,7 +1,7 @@
 import logging
 from logging.config import fileConfig
 
-from ifaxbotcovid.config import settings
+from ifaxbotcovid.config.utils import settings
 from ifaxbotcovid.bot.factory import create_app, create_bot, create_chef
 
 
