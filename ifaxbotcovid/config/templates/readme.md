@@ -30,17 +30,17 @@ texttemplate.txt - for main text
 
 - russia_active           # active COVID cases: <total cases> - (<total recoverd> + <total dead>)
 
-moscow_new_cases        # Moscow COVID-19 cases for 24h
+- moscow_new_cases        # Moscow COVID-19 cases for 24h
 
-moscow_new_deaths       # Moscow COVID-related deaths for 24h
+- moscow_new_deaths       # Moscow COVID-related deaths for 24h
 
-moscow_new_recovered    # Moscow recovered COVID-patients for 24h 
+- moscow_new_recovered    # Moscow recovered COVID-patients for 24h 
 
-date_dateline           # formatted date and month for dateline string in Russian ("12 января")
+- date_dateline           # formatted date and month for dateline string in Russian ("12 января")
 
-date_day                # day of the week in Russian put in right grammatical form
+- date_day                # day of the week in Russian put in right grammatical form
 
-golden_cite             # a piece of original raw text for the second paragraph
+- golden_cite             # a piece of original raw text for the second paragraph
 
 ### FOR RPN COVID-TESTING DAILY MESSAGE:
 
