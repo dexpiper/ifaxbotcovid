@@ -2,7 +2,7 @@
 
 Currently available at https://t.me/ifaxcovidbot.
 
-Russian README in *README_rus.md*
+Russian in [here](https://github.com/dexpiper/ifaxbotcovid/blob/config/README_rus.md)
 
 ### Table of contents
 1. [Introduction](#introduction)
