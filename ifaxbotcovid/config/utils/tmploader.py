@@ -1,9 +1,12 @@
 import logging
 
 
+path = 'ifaxbotcovid/config/templates/'
+
+
 def gettexttemplate():
     try:
-        with open('ifaxbotcovid/config/texttemplate.txt', 'r') as file:
+        with open(path + 'texttemplate.txt', 'r') as file:
             t = file.read()
     except FileNotFoundError:
         logging.error('File for text template not found')
@@ -13,7 +16,7 @@ def gettexttemplate():
 
 def getflashtemplate():
     try:
-        with open('ifaxbotcovid/config/flashtemplate.txt', 'r') as file:
+        with open(path + 'flashtemplate.txt', 'r') as file:
             f = file.read()
     except FileNotFoundError:
         logging.error('File for flash template not found')
@@ -23,7 +26,7 @@ def getflashtemplate():
 
 def getrpntemplate():
     try:
-        with open('ifaxbotcovid/config/rpntemplate.txt', 'r') as file:
+        with open(path + 'rpntemplate.txt', 'r') as file:
             rpn = file.read()
     except FileNotFoundError:
         logging.error('File for RPN template not found')
