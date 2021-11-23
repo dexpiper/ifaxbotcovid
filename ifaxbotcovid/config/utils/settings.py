@@ -37,3 +37,6 @@ boundaries = config['boundaries']
 
 BoundaryTuple = namedtuple('Boundary', ['upper', 'lower', 'default'])
 boundary = BoundaryTuple(**boundaries)
+
+# app version
+version = config['version']

@@ -30,4 +30,7 @@ boundaries:
   upper: 700
   lower: 100
   default: 250
+
+# app version
+version: 2.1.1
 ...
