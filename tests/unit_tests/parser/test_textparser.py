@@ -28,8 +28,20 @@ def samples():
 
 
 @pytest.fixture
-def parser(samples):
-    return textparser.Parser(samples.sample)
+def parser_normal(samples):
+    return textparser.Parser(samples.sample,
+                             mode='Normal')
+
+
+@pytest.fixture
+def parser_file(samples):
+    return textparser.Parser(samples.sample,
+                             mode='File')
+
+
+@pytest.fixture(params=['parser_normal', 'parser_file'])
+def parser(request):
+    return request.getfixturevalue(request.param)
 
 
 class TestUnitParser:
