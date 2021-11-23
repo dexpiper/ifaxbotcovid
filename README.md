@@ -34,10 +34,11 @@ You can test the bot out with any of sample press-releases from *ifaxbotcovid/te
 
 Project is created with:
 
-* Python 3.8.2
-* [pyTelegramBotAPI 3.7.9](https://github.com/eternnoir/pyTelegramBotAPI)
+* Python 3.9.7
+* [pyTelegramBotAPI 4.2.0](https://github.com/eternnoir/pyTelegramBotAPI)
 * Flask/gunicorn for handling and forwarding requests
 * pytest (tests), venv (virtual environment), Git (version control)
+* yaml for yml files parsing
 
 * Key functionality (finding values in text) heavily depends on the *re* module from the Standard Library that provides regular expression operations.
 
@@ -49,7 +50,7 @@ Project is created with:
 
 - The core functionality is provided by *ifaxbotcovid.parser.texparser* module.
 
-- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). Regexes are defined in [*ifaxbotcovid.config.regex* module](https://github.com/dexpiper/ifaxbotcovid/blob/5363811584cac8b1266953a2e9e23576c96a9d47/ifaxbotcovid/config/regex.py). Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
+- Textparser finds values essential for the future news material with pre-written regular expressions (the *re* module from the Standard Python Library). Regexes are defined in [*/ifaxbotcovid/parser/regexp/ dir*](https://github.com/dexpiper/ifaxbotcovid/blob/main/ifaxbotcovid/parser/regexp/regex.py). Bot is designed to deal with some deviations in press-release text, so most of the variables have 2-3 regexes to try.
 
 **Variables to find**:
    - COVID cases ----------- \
@@ -66,9 +67,10 @@ Project is created with:
    - Dateline and name of day of the week (from *time.time* with respect to morphological form and preposition in Russian language)
    - Re-written tables about other regions statistics
 
-- All the found variables and ready region blocks fit into patterns in the *ifaxcovidbot.config.schemes*. In the outcome, bot gets a ready-to-use news material and sends it to the user.
+- All the found variables and ready region blocks fit into patterns listed in the */ifaxcovidbot/config/templates/* dir. In the outcome, bot gets a ready-to-use news material and sends it to the user.
 - If the message with the raw text had a 'йй' symbols in the end, bot also provides the user with a log of the operations performed. Log is meant to be sent in a separate message.
-- Bot programmed to warn user if some of the variables are suspiciously small (defined in *ifaxcovidbot.config.settings*). Also user will get a notice if some of the variables haven't been found (a gap would be filled with a *NO_VALUE* dummy).
+- Bot programmed to warn user if some of the variables are suspiciously small (defined in */ifaxcovidbot/config/settings.yml*). Also user will get a notice if some of the variables haven't been found (a gap would be filled with a *NO_VALUE* dummy).
+- Bot accepts special aftertext command '$$*int*' to request ready text in a file with an optional integer parameter needed to construct the list of Russian regions with new COVID-19 cases.
 
 **Addition feature**
 Bot also can parse a short piece of text provided daily by the press-office of the RPN (Russian Federal agency in charge of virus protection, Rospotrebnadzor), containing information about COVID tests performed in Russia.
@@ -78,9 +80,9 @@ Bot also can parse a short piece of text provided daily by the press-office of t
   + tests done for the last 24 h, 
   + peoples under the medical monitoring
 
-- Then puts variables into template (*ifaxbotcovid.config.settings*) and gives the user ready-to-use block of text in the answer message.
+- Then puts variables into template (*/ifaxbotcovid/config/templates/*) and gives the user ready-to-use block of text in the answer message.
 
-This feature, realized in *ifaxbotcovid.parser.rpn*, is pretty streightforward. All the regular expressions for it defined in the named module, not in *ifaxbotcovid.config.regex*.
+This feature, realized in *ifaxbotcovid.parser.rpn*, is pretty streightforward. All the regular expressions for it defined in the named module, not in *ifaxbotcovid.parser.regexp.regex*.
 
 #### Intermediate logic: CovidChef
 
@@ -103,7 +105,7 @@ CovidChef is organized as a custom Python class, initialized along with the Flas
 2) Chef does its magic
 3) Telebot sends Chef's answers back to user
 
-Under the bonnet Chef stores messages in temporary MessageStorage (using deque), glues sequential messages from single user with certain context (defined in *ifaxbotcovid.config*) together and calls *ifaxcovidvbot.parser.textparser* when glued text seems completed and ended. The Chef's answer is organized in separate class with special flag. This flag signals when the last message were properly cooked to send ready answer to user. Also Chef rapidly cooks short RPN report when recieved one, calling *ifaxbotcovid.parser.rpn*.
+Under the bonnet Chef stores messages in temporary MessageStorage (using deque), glues sequential messages from single user with certain context (defined in */ifaxbotcovid/config/settings.yml*) together and calls *ifaxcovidvbot.parser.textparser* when glued text seems completed and ended. The Chef's answer is organized in separate class with special flag. This flag signals when the last message were properly cooked to send ready answer to user. Also Chef rapidly cooks short RPN report when recieved one, calling *ifaxbotcovid.parser.rpn*.
 
 **Environment variables**
 
@@ -116,7 +118,7 @@ Token for testing purposes could be defined in *ifaxbotcovid.config.token.TOKEN*
 
 **Templates**
 
-Templates are stored in *ifaxbotcovid.config.schemes*. Any other templates could be used instead of the default ones, placeholders for variables are defined in curly brackets:
+Templates are stored in */ifaxbotcovid/config/templates/*. Any other templates could be used instead of the default ones, placeholders for variables are defined in curly brackets:
 
 ```
 Some text here: {name_of_variable1}, {name_of_variable2}.
@@ -124,7 +126,7 @@ Another piece of text
 etc.
 ```
 
-Names of variables and their descriptions are listed in the file.
+Names of variables and their descriptions are listed in the readme file.
 
 ***
 
@@ -196,7 +198,7 @@ Outcome with default template:
 
 ```
 /
-wsgi.py                    - *Flask routes, Telebot handlers, Chef instance creation*
+wsgi.py                    - *Flask routes, Chef instance creation*
 manual_parse.py            - *manual testing for textparser.py*
 manual_rpn_parse.py        - *manual testing for rpn.py*
 
@@ -206,6 +208,7 @@ manual_rpn_parse.py        - *manual testing for rpn.py*
         logic.py               - *CovidChef to call parsers and to bring answers*
         helpers.py             - *CovidChef helpers*
         factory.py             - *Flask, Telebot and Chef starts here*
+        handlers.py            - *Telebot handlers*
         ...
 
     /parser
@@ -221,10 +224,20 @@ manual_rpn_parse.py        - *manual testing for rpn.py*
             ...
 
     /config
-        schemes.py             - *templates*
-        settings.py            - *admins, some base vars and key words defined here*
-        messagestart.txt       - *message to answer /start command*
+        /templates
+            flashtemplate.txt
+            rpntemplate.txt
+            texttemplate.txt
+        /utils
+            tmploader.py            - *template loader*
+            settings.py             - *settings parser*
+            ...
+
         logging.ini            - *logging settings*
+        settings.yml           - *admins, some base vars and key words defined here*
+        messagestart.txt       - *message to answer /start command*
+        messagehelp.txt        - *message to answer /help command*
+            
 
   /tests
     ...

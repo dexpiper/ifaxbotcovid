@@ -15,11 +15,21 @@ with app.app_context():
 
 
 class BotHandlers:
+    '''
+    Message handlers.
+    For use only within app.app_context.
+
+    Every single handler function should be decorated
+    with custom @handler decorator.
+    '''
 
     handlers = []
 
     @classmethod
     def register(cls):
+        '''
+        Register message handlers defined below into a TeleBot.
+        '''
         try:
             for handler in BotHandlers.handlers:
                 name = handler[0]
