@@ -2,6 +2,8 @@
 
 Currently available at https://t.me/ifaxcovidbot.
 
+Russian README in *README_rus.md*
+
 ### Table of contents
 1. [Introduction](#introduction)
 2. [Technologies and libraries](#technologies-and-libraries)
