@@ -228,7 +228,7 @@ class Sender:
     def send_warn(self):
         if self.answer.warnmessage:
             self.bot.send_message(
-                self.message.chat.id, self.answer.warnmessage)
+                self.message.chat.id, '\u26A0' + self.answer.warnmessage)
             self.botlogger.info(
                 'Warning message sent to %s' % self.message.from_user.username
             )
