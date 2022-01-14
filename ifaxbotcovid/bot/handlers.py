@@ -5,8 +5,8 @@ from flask import current_app
 from ifaxbotcovid.bot.logic import CovidChef
 
 from ifaxbotcovid.config.utils import settings, startmessage, helpmessage
-from ifaxbotcovid.bot.utils import DocxReader, Sender, CommandParser
-from ifaxbotcovid.bot.helpers import FileSaver
+from ifaxbotcovid.bot.helpers import (FileSaver, DocxReader, Sender,
+                                      CommandParser)
 from ifaxbotcovid.parser.textparser import Parser
 from ifaxbotcovid.bot.helpers import LogConstructor
 
@@ -133,7 +133,7 @@ class BotHandlers:
                 message=message, asfile=commands.asfile
             )
         if answer.flag:
-            sender = Sender(bot, message, answer, botlogger,
+            sender = Sender(bot, answer, logger=botlogger,
                             logrequest=commands.logrequest)
             if commands.asfile:
                 botlogger.info('Sending answer in file')
@@ -148,6 +148,14 @@ class BotHandlers:
             else:
                 botlogger.info('Sending answer in a direct message')
                 sender.send_directly()
+        else:
+            botlogger.info('Answer considered invalid')
+            bot.send_message(
+                message.chat.id,
+                '\U0001F4A4 Сообщения отправлены в обработку. Если ответа нет,'
+                ' попробуйте отправить текст еще раз или бросьте релиз файлом.'
+            )
+            return
 
     @handler(append_to=handlers, content_types=['document'])
     def user_file_request(message):
@@ -156,28 +164,64 @@ class BotHandlers:
             'docx' in message.document.file_name
         ))
         if not condition:
-            botlogger.info(
-                'Got a file of unknown type from'
-                ' %s' % message.from_user.username
-            )
+            botlogger.info(f'Unknown file type: {message.document.mime_type}')
+            bot.send_message(
+                message.chat.id,
+                '\u274C Ошибка: неизвестный тип файла. '
+                'Мы принимаем только .docx с пресс-релизом оперштаба.')
             return
+
+        # saving file
         botlogger.info(
-            f'Got a file {message.document.file_name}'
+            f'Got a valid file {message.document.file_name}'
             f' from user {message.from_user.username}'
         )
-        file_path = bot.get_file(message.document.file_id).file_path
-        result = bot.download_file(file_path)
-        saved_path = FileSaver.from_file(contents=result,
-                                         filename=message.document.file_name,
-                                         username=message.from_user.username)
+        try:
+            file_path = bot.get_file(message.document.file_id).file_path
+            result = bot.download_file(file_path)
+            saved_path = FileSaver.from_file(
+                contents=result,
+                filename=message.document.file_name,
+                username=message.from_user.username
+            )
+        except Exception as exc:
+            botlogger.error(
+                f'Cannot download or save file from Telegram: {exc}')
+            bot.send_message(
+                message.chat.id,
+                '\u274C Не удалось получить или сохранить файл с Telegram :(\n'
+                'Сообщение об ошибке и детали сохранены. Исправим!'
+            )
+            return
+
         botlogger.info('Successfully saved file in %s' % saved_path)
+        bot.send_message(
+            message.chat.id,
+            f'\u2705 Файл {message.document.file_name} успешно отправлен. \n'
+            'Обрабатываем... \U0001F4A4',
+            parse_mode='HTML'
+        )
+
+        # trying to read file
         reader = DocxReader(saved_path)
-        text = reader.to_text()
+        try:
+            text = reader.to_text()
+        except AssertionError as exc:
+            botlogger.error('Cannot read docx file: %s' % exc)
+            bot.send_message(
+                message.chat.id,
+                '\u274C Не удалось прочитать отправленный файл. '
+                'Что-то с ним не так( Данные об ошибке сохранены.'
+            )
+            return
+
+        # parsing text from file
         news_parser = Parser(txt=text, asfile=True, short=300)
         warn_message, ready_text = news_parser()
         log = LogConstructor.join_log_message(news_parser.log)
+        # constructing and sending answer
         answer = CovidChef.Answer(
             warnmessage=warn_message, ready_text=ready_text,
             log=log, message_object=message)
-        sender = Sender(bot, message, answer, botlogger)
+        sender = Sender(bot, answer, logger=botlogger)
         sender.send_asfile()
