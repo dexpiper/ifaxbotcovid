@@ -1,6 +1,9 @@
+import collections
 import re
 from typing import NamedTuple
 import logging
+
+import docx
 
 from ifaxbotcovid.bot.helpers import FileSaver
 
@@ -95,3 +98,52 @@ class CommandParser:
         return CommandParser.CommandList(asfile=asfile_condition,
                                          logrequest=logreq_condition,
                                          short=short)
+
+
+class DocxReader:
+
+    Tables = collections.namedtuple(
+        'Tables', ['new_cases', 'new_deaths', 'recovered']
+    )
+
+    def __init__(self, file):
+        self.doc = docx.Document(file)
+
+    def to_text(self):
+        result = self.read()
+        return result
+
+    def read(self):
+        assert len(self.doc.tables) == 3, (
+            f'Expected 3 tables, got {len(self.doc.tables)}'
+        )
+        tbls = [self.read_table(table) for table in self.doc.tables]
+        tables = DocxReader.Tables(*tbls)
+        pargs = [parg.text for parg in self.doc.paragraphs]
+        text = self.construct(pargs, tables)
+        return text
+
+    @staticmethod
+    def construct(pargs, tables):
+        mapping = {
+            'Распределение по субъектам': tables.new_cases,
+            'подтверждено': tables.new_deaths,
+            'выписано по выздоровл': tables.recovered
+        }
+        for i, parg in enumerate(pargs):
+            for key in mapping:
+                if key in parg:
+                    pargs.insert(i + 1, mapping[key])
+
+        return '\n'.join(pargs)
+
+    @staticmethod
+    def read_table(table, delim='\t', newline='\n'):
+        if not table:
+            return
+        rows = [
+            delim.join(
+                [cell.text for cell in row.cells]
+            ) for row in table.rows
+        ]
+        return newline.join(rows)

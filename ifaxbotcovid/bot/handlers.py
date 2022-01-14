@@ -2,9 +2,13 @@ import functools
 import logging
 
 from flask import current_app
+from ifaxbotcovid.bot.logic import CovidChef
 
 from ifaxbotcovid.config.utils import settings, startmessage, helpmessage
-from ifaxbotcovid.bot.utils import Sender, CommandParser
+from ifaxbotcovid.bot.utils import DocxReader, Sender, CommandParser
+from ifaxbotcovid.bot.helpers import FileSaver
+from ifaxbotcovid.parser.textparser import Parser
+from ifaxbotcovid.bot.helpers import LogConstructor
 
 
 app = current_app
@@ -144,3 +148,36 @@ class BotHandlers:
             else:
                 botlogger.info('Sending answer in a direct message')
                 sender.send_directly()
+
+    @handler(append_to=handlers, content_types=['document'])
+    def user_file_request(message):
+        condition = all((
+            'officedocument' in message.document.mime_type,
+            'docx' in message.document.file_name
+        ))
+        if not condition:
+            botlogger.info(
+                'Got a file of unknown type from'
+                ' %s' % message.from_user.username
+            )
+            return
+        botlogger.info(
+            f'Got a file {message.document.file_name}'
+            f' from user {message.from_user.username}'
+        )
+        file_path = bot.get_file(message.document.file_id).file_path
+        result = bot.download_file(file_path)
+        saved_path = FileSaver.from_file(contents=result,
+                                         filename=message.document.file_name,
+                                         username=message.from_user.username)
+        botlogger.info('Successfully saved file in %s' % saved_path)
+        reader = DocxReader(saved_path)
+        text = reader.to_text()
+        news_parser = Parser(txt=text, asfile=True, short=300)
+        warn_message, ready_text = news_parser()
+        log = LogConstructor.join_log_message(news_parser.log)
+        answer = CovidChef.Answer(
+            warnmessage=warn_message, ready_text=ready_text,
+            log=log, message_object=message)
+        sender = Sender(bot, message, answer, botlogger)
+        sender.send_asfile()

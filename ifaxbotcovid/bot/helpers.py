@@ -190,3 +190,15 @@ class FileSaver:
         with open(path, 'w') as f:
             f.write(text)
         return path
+
+    def from_file(contents: str,
+                  filename: str,
+                  username: str = 'default',
+                  timestamp: int = int(time()),
+                  tempdir: str = './temp'
+                  ) -> str:
+        path = f'{tempdir}/{username}{str(timestamp)}.{filename[-4:]}'
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'wb') as f:
+            f.write(contents)
+        return path

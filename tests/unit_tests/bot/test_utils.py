@@ -1,7 +1,9 @@
 from pytest import fixture
 from unittest.mock import Mock
+from pathlib import Path
 
-from ifaxbotcovid.bot.utils import CommandParser
+from ifaxbotcovid.bot.utils import CommandParser, DocxReader
+from tests.instruments import Instruments
 
 
 class TestCommandParser:
@@ -92,3 +94,21 @@ class TestCommandParser:
         assert settings.asfile
         assert not settings.short
         assert not settings.logrequest
+
+
+class TestDocxReader:
+
+    @fixture
+    def file(self):
+        f = Instruments.import_files(
+            data_folder=Path('tests/test_data/'),
+            suff='.docx'
+        )
+        return f[0]
+
+    def test_access_text_from_file(self, file):
+        reader = DocxReader(file)
+        text = reader.to_text()
+        keys = ('Распределение по субъектам', 'случаев', 'COVID-19', 'выздор')
+        for key in keys:
+            assert key in text

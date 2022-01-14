@@ -9,10 +9,10 @@ from ifaxbotcovid.parser import rpn, textparser
 class Instruments:
 
     @staticmethod
-    def import_files(data_folder):
+    def import_files(data_folder, suff='.txt'):
         files = [
             e for e in data_folder.iterdir() if
-            (e.is_file() and (e.suffix == '.txt'))
+            (e.is_file() and (e.suffix == suff))
             ]
         return files
 
