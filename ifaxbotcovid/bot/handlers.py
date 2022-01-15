@@ -210,6 +210,7 @@ class BotHandlers:
                 '\u274C Не удалось прочитать отправленный файл. '
                 'Что-то с ним не так( Данные об ошибке сохранены.'
             )
+            FileSaver.del_file(saved_path)
             return
 
         # parsing text from file
@@ -222,3 +223,5 @@ class BotHandlers:
             log=log, message_object=message)
         sender = Sender(bot, answer, logger=botlogger)
         sender.send_asfile()
+        for file in (saved_path, sender.path):
+            FileSaver.del_file(file)

@@ -4,6 +4,7 @@ from time import time
 import os
 import logging
 from typing import NamedTuple
+from pathlib import Path
 
 import docx
 
@@ -207,6 +208,11 @@ class FileSaver:
             f.write(contents)
         return path
 
+    def del_file(path: str):
+        path = Path(path)
+        if path.is_file():
+            os.remove(path)
+
 
 class Sender:
     '''
@@ -224,6 +230,7 @@ class Sender:
         self.message = answer.message_object
         self.botlogger = logger
         self.logrequest = logrequest
+        self.path = None
 
     def send_warn(self):
         if self.answer.warnmessage:
@@ -248,7 +255,7 @@ class Sender:
         self.send_log()
 
     def send_asfile(self):
-        path = FileSaver.to_file(
+        self.path = FileSaver.to_file(
             text=self.answer.ready_text,
             username=self.message.from_user.username
         )
@@ -256,11 +263,11 @@ class Sender:
         self.send_log()
         try:
             self.bot.send_document(
-                self.message.chat.id, open(path), 'document'
+                self.message.chat.id, open(self.path), 'document'
             )
         except Exception as exc:
             self.botlogger.error(
-                'No system log file found! Exception: %s' % exc)
+                'File not found! Exception: %s' % exc)
             self.bot.send_message(
                 self.message.chat.id, 'Ошибка при отправке файла')
 
