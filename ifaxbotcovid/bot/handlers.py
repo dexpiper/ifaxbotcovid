@@ -159,15 +159,12 @@ class BotHandlers:
 
     @handler(append_to=handlers, content_types=['document'])
     def user_file_request(message):
-        condition = all((
-            'officedocument' in message.document.mime_type,
-            'docx' in message.document.file_name
-        ))
-        if not condition:
-            botlogger.info(f'Unknown file type: {message.document.mime_type}')
+        suffix = message.document.file_name.split('.')[-1]
+        if suffix != 'docx':
+            botlogger.info(f'Unknown file type: {suffix}')
             bot.send_message(
                 message.chat.id,
-                '\u274C Ошибка: неизвестный тип файла. '
+                f'\u274C Ошибка: неизвестный тип файла {suffix} '
                 'Мы принимаем только .docx с пресс-релизом оперштаба.')
             return
 
