@@ -1,8 +1,8 @@
 ---
 base_vars:
-  russia_total_cases: 8590000
-  russia_total_deaths: 240000
-  russia_total_recovered: 7400000
+  russia_total_cases: 10000000
+  russia_total_deaths: 310000
+  russia_total_recovered: 9000000
 
 # key words to detect valid press-release
 key_words:
@@ -32,5 +32,5 @@ boundaries:
   default: 250
 
 # app version
-version: 2.2.0
+version: 2.2.1
 ...
