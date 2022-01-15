@@ -223,5 +223,4 @@ class BotHandlers:
             log=log, message_object=message)
         sender = Sender(bot, answer, logger=botlogger)
         sender.send_asfile()
-        for file in (saved_path, sender.path):
-            FileSaver.del_file(file)
+        FileSaver.del_file(saved_path)
