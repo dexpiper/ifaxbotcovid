@@ -77,8 +77,8 @@ class Instruments:
             elif flag:
                 tag += symbol
 
-        assert not len(opened_brackets)
-        assert not len(opened_tags)
+        assert not len(opened_brackets), 'Not closed brackets in (last?) tag'
+        assert not len(opened_tags), f'Not closed tags: {opened_tags}'
         return True
 
     @staticmethod
