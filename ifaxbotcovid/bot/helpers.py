@@ -314,7 +314,13 @@ class DocxReader:
         'Tables', ['new_cases', 'new_deaths', 'recovered']
     )
 
-    def __init__(self, file):
+    def __init__(self, file: str):
+        """
+        Return a DocxReader object where <file> could be a str or a
+        file-like object. Usage:
+        >>> reader = DocxReader('filepath.docx')
+        >>> ready_text = reader.to_text()
+        """
         self.doc = docx.Document(file)
 
     def to_text(self):

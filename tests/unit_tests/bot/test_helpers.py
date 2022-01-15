@@ -374,6 +374,10 @@ class TestCommandParser:
 
 class TestDocxReader:
 
+    keys = ('Распределение по субъектам', 'случаев',
+            'Москва', 'COVID-19', 'выздор', 'Санкт-Петербург',
+            'смерт', 'коронавирус')
+
     @pytest.fixture
     def file(self):
         f = Instruments.import_files(
@@ -385,6 +389,5 @@ class TestDocxReader:
     def test_access_text_from_file(self, file):
         reader = DocxReader(file)
         text = reader.to_text()
-        keys = ('Распределение по субъектам', 'случаев', 'COVID-19', 'выздор')
-        for key in keys:
+        for key in TestDocxReader.keys:
             assert key in text

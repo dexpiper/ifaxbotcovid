@@ -2,13 +2,12 @@ import functools
 import logging
 
 from flask import current_app
-from ifaxbotcovid.bot.logic import CovidChef
 
+from ifaxbotcovid.bot.logic import CovidChef
 from ifaxbotcovid.config.utils import settings, startmessage, helpmessage
 from ifaxbotcovid.bot.helpers import (FileSaver, DocxReader, Sender,
-                                      CommandParser)
+                                      CommandParser, LogConstructor)
 from ifaxbotcovid.parser.textparser import Parser
-from ifaxbotcovid.bot.helpers import LogConstructor
 
 
 app = current_app
@@ -19,21 +18,21 @@ with app.app_context():
 
 
 class BotHandlers:
-    '''
+    """
     Message handlers.
     For use only within app.app_context.
 
     Every single handler function should be decorated
     with custom @handler decorator.
-    '''
+    """
 
     handlers = []
 
     @classmethod
     def register(cls):
-        '''
+        """
         Register message handlers defined below into a TeleBot.
-        '''
+        """
         try:
             for handler in BotHandlers.handlers:
                 name = handler[0]
@@ -45,10 +44,9 @@ class BotHandlers:
             return False
 
     def handler(append_to=handlers, **out_kwargs):
-        '''
+        """
         Decorator to register telebot handlers
-        '''
-
+        """
         def decorator_register(func):
             if out_kwargs:
                 append_to.append((func, out_kwargs))
@@ -63,9 +61,9 @@ class BotHandlers:
 
     @handler(append_to=handlers, commands=['start'])
     def answer_start(message):
-        '''
+        """
         Bot sends welcome message
-        '''
+        """
         bot.send_message(
             message.chat.id,
             startmessage.startmsg(),
@@ -80,9 +78,9 @@ class BotHandlers:
 
     @handler(append_to=handlers, commands=['help'])
     def answer_help(message):
-        '''
+        """
         Bot sends help message
-        '''
+        """
         botlogger.info(
             'User %s issued "help" command' % message.from_user.username)
         bot.send_message(
@@ -93,9 +91,9 @@ class BotHandlers:
 
     @handler(append_to=handlers, commands=['log'])
     def syslog_sender(message):
-        '''
+        """
         Bot sends system log as a file (admin only)
-        '''
+        """
         user = message.from_user.username
         chat_id = message.chat.id
         botlogger.info('User %s requested "log" file via command' % user)
@@ -116,6 +114,12 @@ class BotHandlers:
 
     @handler(append_to=handlers, content_types=['text'])
     def user_request(message):
+        """
+        Store recieved message's text in MessageStorage and check
+        if previous messages with the new one form together a valid
+        COVID-19 press-release. Call parser to find vars and fill in
+        the template. Send ready news material back.
+        """
         botlogger.info(
             'User %s send some text' % message.from_user.username)
         commands = CommandParser.get_settings(message)
@@ -159,6 +163,11 @@ class BotHandlers:
 
     @handler(append_to=handlers, content_types=['document'])
     def user_file_request(message):
+        """
+        Recieve the whole press-release in .docx file. Check and save
+        the file, get text from it, parse text, fill in the gaps in template
+        and send ready news-material to the user.
+        """
         suffix = message.document.file_name.split('.')[-1]
         if suffix != 'docx':
             botlogger.info(f'Unknown file type: {suffix}')
@@ -200,10 +209,10 @@ class BotHandlers:
         )
 
         # trying to read file
-        reader = DocxReader(saved_path)
         try:
+            reader = DocxReader(saved_path)
             text = reader.to_text()
-        except AssertionError as exc:
+        except Exception as exc:
             botlogger.error('Cannot read docx file: %s' % exc)
             bot.send_message(
                 message.chat.id,
