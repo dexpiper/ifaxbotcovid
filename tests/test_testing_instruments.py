@@ -14,6 +14,7 @@ the output.
 
 import pprint
 from pathlib import Path
+import pytest
 
 from tests import instruments as inst
 
@@ -66,3 +67,37 @@ class TestParser:
                 assert condition, f'File {file.name} did not pass the test'
                 pprint.pprint(log)
                 print(text)
+
+
+class TestHTMLtagsChecker:
+
+    @pytest.mark.parametrize('text', [
+        'Just a bare string without tags',
+        '',
+        '<b>Hello!</b> Normal string here.',
+        "<a href='http://www.foo.bar/edit/bar/1234.html'>This is a link!</a>"
+        " And this is <b>ok!</b> Just live it <u>here</u>.",
+        '<b>Eggs</b> and <i>spam</i> come <b><i>together</i></b>',
+        '<b><i>Not in the same order</b></i>',
+        '<sophisticated>Hello there!</sophisticated>'
+        ]
+    )
+    def test_good_html_tags(self, text):
+        result = inst.Instruments.check_html_tags(text)
+        assert result
+
+    @pytest.mark.parametrize('bad_text', [
+        '<b>Not closed',
+        'Have not been opened</b>',
+        "<a href=something.com>Not closed a-tag",
+        '<<b>',
+        '<b>This is good</b>, but <i>this<i> - not',
+        '<a href=a href="awfafawf"></a>',
+        '<>',
+        '<i>Bad closing slash<|i>',
+        '<b><i><u>One tag not closed</u><b>'
+        ]
+    )
+    def test_bad_html_tags(self, bad_text):
+        with pytest.raises(AssertionError):
+            _ = inst.Instruments.check_html_tags(bad_text)
