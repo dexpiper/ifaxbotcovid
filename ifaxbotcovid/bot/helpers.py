@@ -56,7 +56,7 @@ class MessageStorage():
     def __len__(self):
         return len(self._db)
 
-    def append(self, text='', chat_id='', time=int(time())) -> None:
+    def append(self, text='', chat_id='', time=time()) -> None:
         self._db.append(
             MessageStorage.InnerMessage(
                 time=time,

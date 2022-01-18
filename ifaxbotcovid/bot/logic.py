@@ -1,5 +1,4 @@
 import logging
-import time
 from typing import NamedTuple
 
 from ifaxbotcovid.bot.helpers import LogConstructor, MessageStorage
@@ -70,7 +69,6 @@ class CovidChef():
 
     def process_new_message(self,
                             message: object,
-                            time=int(time.time()),
                             asfile: bool = False,
                             short: int = 300) -> Answer:
         '''
@@ -89,7 +87,7 @@ class CovidChef():
             self.storage.append(
                 text=message.text,
                 chat_id=message.chat.id,
-                time=time)
+                time=message.date)
             # append previous messages
             joint_message = self.storage.get_joint()
             if joint_message.valid:

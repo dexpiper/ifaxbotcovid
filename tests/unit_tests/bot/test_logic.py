@@ -199,13 +199,16 @@ class TestCovidChef:
 
         t = int(time.time())
         msg1, msg2, msg3 = messages
+        msg1.date = t
+        msg2.date = t + 2
+        msg3.date = t + 4
 
-        answer1 = chef.process_new_message(msg1, time=t)
+        answer1 = chef.process_new_message(msg1)
         assert answer1.flag is False
 
-        answer2 = chef.process_new_message(msg2, time=t+2)
+        answer2 = chef.process_new_message(msg2)
         assert answer2.flag is False
 
-        answer3 = chef.process_new_message(msg3, time=t+4)
+        answer3 = chef.process_new_message(msg3)
         assert answer3.ready_text == ''
-        assert answer3.flag is False
+        assert answer3.flag is False  # gap is too big to glue messages 2gather
