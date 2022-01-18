@@ -12,7 +12,7 @@ key_words:
 
 # key word to mark the end of long message
 stop_phrase:
-  'За весь период выписано'
+  'За весь период выписан'
 
 # short procedure keyword
 short_procedure_key:
@@ -32,5 +32,5 @@ boundaries:
   default: 250
 
 # app version
-version: 2.2.4
+version: 2.2.5
 ...

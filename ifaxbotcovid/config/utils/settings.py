@@ -4,7 +4,7 @@ import logging
 import yaml
 
 
-file = 'ifaxbotcovid/config/settings.yml'
+file = 'settings.yml'
 
 with open(file, 'r') as stream:
     try:
