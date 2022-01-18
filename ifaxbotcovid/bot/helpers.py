@@ -97,15 +97,9 @@ class MessageStorage():
 
         Returns JointMessage object
         '''
-        last = self._last()
-        if (self.stop_phrase) and (
-            self.stop_phrase not in last.text
-        ):
-            return JointMessage('', self, invalid_flag=True)
-
         seq = self._get_sequence()          # messages from user in storage
         texts = []                          # list of messages to concatenate
-        t = last.time
+        t = self._last().time
 
         for i in range(-1, -(len(seq) + 1), -1):
             # iterating -1 step backwards, from the last

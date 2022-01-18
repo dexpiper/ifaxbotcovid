@@ -173,7 +173,7 @@ class TestCovidChef:
         assert answer2.flag is False
 
         answer3 = chef.process_new_message(msg1)
-        assert answer3.flag is False
+        assert answer3.flag is True
 
     def test_one_good_message(self, chef, texts, msg):
         long_text = ''.join(texts)

@@ -177,14 +177,6 @@ class TestMessageStorage:
         assert joint_message.text
         assert joint_message.text == expect_text
 
-    def test_joint_message_bad_validation(self, ready_storage):
-        ready_storage.append(
-            text='No stop word in last message! An error!',
-            chat_id='11')
-        joint_message = ready_storage.get_joint()
-        assert not joint_message.valid
-        assert not joint_message.text
-
     def test_validation_without_proper_params(self,
                                               check_phrases,
                                               stop_phrase):
