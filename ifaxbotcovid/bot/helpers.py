@@ -83,8 +83,11 @@ class MessageStorage():
         who wrote the last message.
         '''
         last_message = self._last()
-        return tuple(message for message in self._db if
-                     message.chat_id == last_message.chat_id)
+        seq = [
+            message for message in self._db if
+            message.chat_id == last_message.chat_id
+        ]
+        return tuple(sorted(seq, key=lambda message: message.time))
 
     def get_joint(self):
         '''
