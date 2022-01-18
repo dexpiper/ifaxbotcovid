@@ -211,4 +211,4 @@ class TestCovidChef:
 
         answer3 = chef.process_new_message(msg3)
         assert answer3.ready_text == ''
-        assert answer3.flag is False  # gap is too big to glue messages 2gather
+        assert answer3.flag is False  # gap is too big to glue messages 2gether
