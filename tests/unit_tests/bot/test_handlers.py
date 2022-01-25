@@ -5,6 +5,7 @@ from pytest import fixture
 
 from ifaxbotcovid.bot.factory import create_app, create_bot, create_chef
 from ifaxbotcovid.config.utils import settings
+from ifaxbotcovid.database import db
 
 
 class TestHandlers:
@@ -25,9 +26,11 @@ class TestHandlers:
             time_gap=1.5,
             logger=botlogger
         )
+        store = db.RedisStore(socket_timeout=3.0)
         app.config['TELEBOT'] = bot
         app.config['TELEBOT_LOGGER'] = tblogger
         app.config['COVIDCHEF'] = chef
+        app.config['REDIS'] = store
         Objects = namedtuple('Objects', ['app', 'bot', 'chef'])
         answer = Objects(app, bot, chef)
         return answer

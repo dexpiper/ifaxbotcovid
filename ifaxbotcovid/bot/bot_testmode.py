@@ -38,7 +38,7 @@ store = db.RedisStore(socket_timeout=3.0)
 app.config['TELEBOT'] = bot
 app.config['TELEBOT_LOGGER'] = tblogger
 app.config['COVIDCHEF'] = chef
-app.config['REDIS_URL'] = store
+app.config['REDIS'] = store
 
 
 with app.app_context():

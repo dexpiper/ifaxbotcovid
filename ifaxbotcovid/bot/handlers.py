@@ -15,7 +15,7 @@ with app.app_context():
     bot = app.config['TELEBOT']
     botlogger = app.config['TELEBOT_LOGGER']
     chef = app.config['COVIDCHEF']
-    store = app.config['REDIS_URL']
+    store = app.config['REDIS']
 
 
 class BotHandlers:
@@ -118,7 +118,7 @@ class BotHandlers:
         value = message.text[6:].strip()
         if not value:
             try:
-                value = store.get(key=message.chat.id, cached=True)
+                value = int(store.get(key=message.chat.id, cached=True))
             except LookupError:
                 botlogger.error(
                     f'Cannot get value for user {message.chat.id} '
@@ -127,7 +127,8 @@ class BotHandlers:
                 bot.send_message(
                     message.chat.id,
                     'Значение /short для вас не установлено, '
-                    'используется значение по умолчанию (300).'
+                    'используется значение по умолчанию: '
+                    f'{settings.boundary.default}'
                 )
             except Exception as exc:
                 botlogger.error(f'Cannot connect to database: {exc}')
@@ -135,7 +136,7 @@ class BotHandlers:
                     message.chat.id,
                     '\u274C Не удалось получить данные. Сообщение об ошибке '
                     'сохранено, мы ей займемся. Сейчас используется значение '
-                    'по умолчанию (300)'
+                    f'по умолчанию: {settings.boundary.default}'
                 )
             else:
                 bot.send_message(
@@ -201,8 +202,14 @@ class BotHandlers:
                 short=commands.short
             )
         else:
+            try:
+                short = int(store.get(key=message.chat.id, cached=True))
+            except Exception as exc:
+                botlogger.error(f'Cannot connect to database: {exc}')
+                short = settings.boundaries.default
             answer = chef.process_new_message(
-                message=message, asfile=commands.asfile
+                message=message, asfile=commands.asfile,
+                short=short
             )
         if answer.flag:
             sender = Sender(bot, answer, logger=botlogger,
@@ -291,7 +298,12 @@ class BotHandlers:
             return
 
         # parsing text from file
-        news_parser = Parser(txt=text, asfile=True, short=300)
+        try:
+            short = int(store.get(key=message.chat.id, cached=True))
+        except Exception as exc:
+            botlogger.error(f'Cannot connect to database: {exc}')
+            short = settings.boundaries.default
+        news_parser = Parser(txt=text, asfile=True, short=short)
         warn_message, ready_text = news_parser()
         log = LogConstructor.join_log_message(news_parser.log)
         # constructing and sending answer

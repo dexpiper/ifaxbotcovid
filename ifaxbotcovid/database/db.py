@@ -20,7 +20,12 @@ class RedisStore:
         localhost.
         """
         if url:
-            self.r = redis.Redis(url=url, socket_timeout=socket_timeout)
+            pw, address = url.split('@')
+            pw = pw[7:]
+            address, port = address.split(':')
+            self.r = redis.Redis(host=host, port=port, db=db,
+                                 password=pw,
+                                 socket_timeout=socket_timeout)
         else:
             self.r = redis.Redis(host=host, port=port, db=db,
                                  password=password,

@@ -7,6 +7,7 @@ from flask import request
 
 from ifaxbotcovid.bot import factory
 from ifaxbotcovid.config.utils import settings
+from ifaxbotcovid.database import db
 
 
 # logging settings
@@ -16,10 +17,13 @@ botlogger = logging.getLogger('botlogger')
 # getting environ vars
 TOKEN = os.environ.get('TOKEN')
 URL = os.environ.get('URL')
+REDIS_URL = os.environ.get('REDIS_URL')
 if TOKEN is None:
     botlogger.warning('TOKEN should be defined as system var')
 if URL is None:
     botlogger.warning('URL should be defined as system var')
+if REDIS_URL is None:
+    botlogger.warning('REDIS_URL should be defined as system var')
 
 # creating Flask, Telebot and Chef instances
 app = factory.create_app()
@@ -34,12 +38,13 @@ chef = factory.create_chef(
     time_gap=2,
     logger=botlogger
 )
+store = db.RedisStore(url=REDIS_URL, socket_timeout=3.0)
 
 # registering into flask
 app.config['TELEBOT'] = bot
 app.config['TELEBOT_LOGGER'] = tblogger
 app.config['COVIDCHEF'] = chef
-
+app.config['REDIS'] = store
 
 # registering bot handlers
 with app.app_context():
