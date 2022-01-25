@@ -1,7 +1,9 @@
 attrs==21.2.0
+cachetools==5.0.0
 certifi==2021.5.30
 chardet==4.0.0
 click==8.0.1
+Deprecated==1.2.13
 flake8==4.0.1
 Flask==2.0.1
 gunicorn==20.1.0
@@ -24,7 +26,9 @@ pyTelegramBotAPI==4.2.0
 pytest==6.2.5
 python-docx==0.8.11
 PyYAML==6.0
+redis==4.1.1
 requests==2.25.1
 toml==0.10.2
 urllib3==1.26.5
 Werkzeug==2.0.1
+wrapt==1.13.3

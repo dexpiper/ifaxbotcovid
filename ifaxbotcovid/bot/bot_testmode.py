@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from ifaxbotcovid.config.utils import settings
 from ifaxbotcovid.bot.factory import create_app, create_bot, create_chef
+from ifaxbotcovid.database import db
 
 
 # logging settings
@@ -17,6 +18,8 @@ except ImportError or ModuleNotFoundError as err:
     botlogger.warning('File with Telegram token have not been found')
     raise err
 
+REDIS_URL = 'localhost:6379'
+
 app = create_app()
 bot, tblogger = create_bot(
     TOKEN, get_logger=True, loglevel=logging.INFO
@@ -29,11 +32,13 @@ chef = create_chef(
     time_gap=1.5,
     logger=botlogger
 )
+store = db.RedisStore(socket_timeout=3.0)
 
 # registering into flask
 app.config['TELEBOT'] = bot
 app.config['TELEBOT_LOGGER'] = tblogger
 app.config['COVIDCHEF'] = chef
+app.config['REDIS_URL'] = store
 
 
 with app.app_context():

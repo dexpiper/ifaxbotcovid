@@ -15,6 +15,7 @@ with app.app_context():
     bot = app.config['TELEBOT']
     botlogger = app.config['TELEBOT_LOGGER']
     chef = app.config['COVIDCHEF']
+    store = app.config['REDIS_URL']
 
 
 class BotHandlers:
@@ -110,6 +111,73 @@ class BotHandlers:
             botlogger.warning('Access to user %s denied' % user)
             bot.send_message(
                 message.chat.id, '<b>Access denied</b>', parse_mode='HTML'
+            )
+
+    @handler(append_to=handlers, commands=['short'])
+    def answer_short(message):
+        value = message.text[6:].strip()
+        if not value:
+            try:
+                value = store.get(key=message.chat.id, cached=True)
+            except LookupError:
+                botlogger.error(
+                    f'Cannot get value for user {message.chat.id} '
+                    f'({message.from_user.username})'
+                )
+                bot.send_message(
+                    message.chat.id,
+                    'Значение /short для вас не установлено, '
+                    'используется значение по умолчанию (300).'
+                )
+            except Exception as exc:
+                botlogger.error(f'Cannot connect to database: {exc}')
+                bot.send_message(
+                    message.chat.id,
+                    '\u274C Не удалось получить данные. Сообщение об ошибке '
+                    'сохранено, мы ей займемся. Сейчас используется значение '
+                    'по умолчанию (300)'
+                )
+            else:
+                bot.send_message(
+                    message.chat.id,
+                    f'Значение /short для вас: {value}. '
+                    'Для изменения используйте команду /short <цифра>'
+                )
+            finally:
+                return
+        try:
+            value = int(value)
+            assert 100 < value < 700
+        except ValueError:
+            botlogger.error(f'Cannot extract int value from {message.text}')
+            bot.send_message(
+                message.chat.id,
+                '\u274C Неверный формат данных. Пожалуйста, используйте '
+                'команду так: <i>"/short 300"</i>.',
+                parse_mode='HTML'
+            )
+            return
+        except AssertionError:
+            botlogger.error('Value not in diap 100 < val < 700')
+            bot.send_message(
+                message.chat.id,
+                '\u274C Значение должно быть в диапазоне от <i>100 до 700</i>',
+                parse_mode='HTML'
+            )
+            return
+        try:
+            store.set(key=message.chat.id, value=value, cached=True)
+        except Exception as exc:
+            botlogger.error(f'Cannot set value in database: {exc}')
+            bot.send_message(
+                message.chat.id,
+                '\u274C Не удалось внести изменения. Сообщение об ошибке '
+                'сохранено, мы ей займемся.'
+            )
+        else:
+            bot.send_message(
+                message.chat.id,
+                f'\u2705 Новое значение /short {value} для вас сохранено'
             )
 
     @handler(append_to=handlers, content_types=['text'])
